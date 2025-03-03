@@ -10,3 +10,9 @@ export enum TokenType {
   ForgotPasswordToken,
   EmailVerifyToken
 }
+
+export enum ProductType {
+  Clothing = 'Clothing',
+  Furniture = 'Furniture',
+  Electronic = 'Electronic'
+}
