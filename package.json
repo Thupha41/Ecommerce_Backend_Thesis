@@ -1,5 +1,5 @@
 {
-  "name": "twitter-api",
+  "name": "e-commerce-thesis-api",
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
@@ -44,6 +44,8 @@
     "jsonwebtoken": "^9.0.2",
     "lodash": "^4.17.21",
     "mongodb": "^6.11.0",
-    "nodemailer": "^6.9.16"
+    "mongoose": "^8.11.0",
+    "nodemailer": "^6.9.16",
+    "slugify": "^1.6.6"
   }
 }

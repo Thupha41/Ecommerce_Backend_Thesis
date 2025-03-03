@@ -90,3 +90,55 @@ export const LIKE_MESSAGES = {
   LIKE_SUCCESSFULLY: 'Like successfully',
   UNLIKE_SUCCESSFULLY: 'Unlike successfully'
 }
+
+export const PRODUCTS_MESSAGES = {
+  // Validation Messages
+  PRODUCT_NOT_FOUND: 'Product not found',
+  INVALID_PRODUCT_ID: 'Invalid product id',
+  PRODUCT_NAME_IS_REQUIRED: 'Product name is required',
+  PRODUCT_THUMB_IS_REQUIRED: 'Product thumbnail is required',
+  PRODUCT_PRICE_IS_REQUIRED: 'Product price is required',
+  PRODUCT_QUANTITY_IS_REQUIRED: 'Product quantity is required',
+  PRODUCT_TYPE_IS_REQUIRED: 'Product type is required',
+  PRODUCT_SHOP_IS_REQUIRED: 'Product shop is required',
+  PRODUCT_ATTRIBUTES_IS_REQUIRED: 'Product attributes is required',
+  INVALID_PRODUCT_TYPE: 'Invalid product type',
+  PRODUCT_ATTRIBUTES_VALUES_CANNOT_BE_NULL: 'Product attributes values cannot be null',
+
+  // Success Messages
+  CREATE_PRODUCT_SUCCESS: 'Create new product successfully',
+  UPDATE_PRODUCT_SUCCESS: 'Update product successfully',
+  GET_PRODUCT_SUCCESS: 'Get product successfully',
+  GET_ALL_PRODUCTS_SUCCESS: 'Get all products successfully',
+  GET_PRODUCT_DETAIL_SUCCESS: 'Get product detail successfully',
+  DELETE_PRODUCT_SUCCESS: 'Delete product successfully',
+
+  // Draft & Published Messages
+  GET_ALL_DRAFTS_SUCCESS: 'Get list of draft products successfully',
+  GET_ALL_PUBLISHED_SUCCESS: 'Get list of published products successfully',
+  PUBLISH_PRODUCT_SUCCESS: 'Publish product successfully',
+  UNPUBLISH_PRODUCT_SUCCESS: 'Unpublish product successfully',
+
+  // Search Messages
+  SEARCH_PRODUCT_SUCCESS: 'Search products successfully',
+  NO_PRODUCTS_FOUND: 'No products found',
+
+  // Shop Messages
+  PRODUCT_SHOP_NOT_FOUND: 'Product shop not found',
+  NOT_SHOP_OWNER: 'You are not the owner of this product',
+
+  // Inventory Messages
+  PRODUCT_OUT_OF_STOCK: 'Product is out of stock',
+  INSUFFICIENT_PRODUCT_QUANTITY: 'Insufficient product quantity',
+
+  // Status Messages
+  PRODUCT_IS_NOT_PUBLISHED: 'Product is not published',
+  PRODUCT_ALREADY_PUBLISHED: 'Product is already published',
+  PRODUCT_ALREADY_UNPUBLISHED: 'Product is already unpublished',
+
+  // Operation Messages
+  PRODUCT_VARIATION_EXISTS: 'Product variation already exists',
+  PRODUCT_VARIATION_NOT_FOUND: 'Product variation not found',
+  UPDATE_PRODUCT_QUANTITY_SUCCESS: 'Update product quantity successfully',
+  UPDATE_PRODUCT_PRICE_SUCCESS: 'Update product price successfully'
+} as const

@@ -3,6 +3,10 @@ import { envConfig } from '../constants/config'
 import User from '../models/schemas/User.schema'
 import RefreshToken from '~/models/schemas/RefreshToken.schema'
 import Follower from '~/models/schemas/Follower.schema'
+import Product from '~/models/schemas/Products/Product.schema'
+import Electronics from '~/models/schemas/Products/Electronic.schema'
+import Furniture from '~/models/schemas/Products/Furniture.schema'
+import Clothing from '~/models/schemas/Products/Clothing.schema'
 const uri = `mongodb+srv://${envConfig.dbUsername}:${envConfig.dbPassword}@twitter-cluster.hzc1q.mongodb.net/?retryWrites=true&w=majority&appName=Twitter-Cluster`
 
 class DatabaseService {
@@ -31,6 +35,18 @@ class DatabaseService {
   }
   get followers(): Collection<Follower> {
     return this.db.collection(envConfig.dbFollowersCollection)
+  }
+  get products(): Collection<Product> {
+    return this.db.collection(envConfig.dbProductsCollection)
+  }
+  get electronics(): Collection<Electronics> {
+    return this.db.collection(envConfig.dbElectronicsCollection)
+  }
+  get furniture(): Collection<Furniture> {
+    return this.db.collection(envConfig.dbFurnitureCollection)
+  }
+  get clothes(): Collection<Clothing> {
+    return this.db.collection(envConfig.dbClothesCollection)
   }
 }
 const databaseService = new DatabaseService()
