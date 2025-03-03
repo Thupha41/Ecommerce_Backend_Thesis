@@ -4,6 +4,7 @@ import databaseService from './database.services'
 import { ProductType } from '~/constants/enums'
 import { IProductType } from '~/models/schemas/Products/Product.schema'
 import { productRepository } from '../models/repositories/products.repo'
+import { insertInventory } from '~/models/repositories/inventory.repo'
 // Base Product Class
 class Product {
   private products = databaseService.products
@@ -70,7 +71,14 @@ class Product {
       updated_at: new Date()
     }
 
-    await this.products.insertOne(productData)
+    const newProduct = await this.products.insertOne(productData)
+    if (newProduct) {
+      await insertInventory({
+        productId: newProduct.insertedId.toString(),
+        shopId: this.product_shop.toString(),
+        stock: this.product_quantity
+      })
+    }
 
     return {
       ...productData,

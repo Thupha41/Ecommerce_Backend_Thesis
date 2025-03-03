@@ -16,3 +16,9 @@ export enum ProductType {
   Furniture = 'Furniture',
   Electronic = 'Electronic'
 }
+
+export enum InventoryStatus {
+  InStock = 'InStock',
+  OutOfStock = 'OutOfStock',
+  RunningLow = 'RunningLow'
+}

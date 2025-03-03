@@ -7,6 +7,7 @@ import Product from '~/models/schemas/Products/Product.schema'
 import Electronics from '~/models/schemas/Products/Electronic.schema'
 import Furniture from '~/models/schemas/Products/Furniture.schema'
 import Clothing from '~/models/schemas/Products/Clothing.schema'
+import Inventory from '~/models/schemas/Inventory.schema'
 const uri = `mongodb+srv://${envConfig.dbUsername}:${envConfig.dbPassword}@twitter-cluster.hzc1q.mongodb.net/?retryWrites=true&w=majority&appName=Twitter-Cluster`
 
 class DatabaseService {
@@ -47,6 +48,9 @@ class DatabaseService {
   }
   get clothes(): Collection<Clothing> {
     return this.db.collection(envConfig.dbClothesCollection)
+  }
+  get inventories(): Collection<Inventory> {
+    return this.db.collection(envConfig.dbInventoriesCollection)
   }
 }
 const databaseService = new DatabaseService()
