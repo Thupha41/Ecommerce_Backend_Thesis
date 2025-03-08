@@ -111,6 +111,11 @@ class ProductRepository {
       projection[field] = 1
     })
 
+    // Convert string IDs to ObjectId in the $in filter if present
+    if (filter._id?.$in) {
+      filter._id.$in = filter._id.$in.map((id: string) => new ObjectId(id))
+    }
+
     return await this.products.find(filter).sort(sortBy).skip(skip).limit(limit).project(projection).toArray()
   }
 
