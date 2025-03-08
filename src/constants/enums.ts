@@ -22,3 +22,13 @@ export enum InventoryStatus {
   OutOfStock = 'OutOfStock',
   RunningLow = 'RunningLow'
 }
+
+export enum DiscountType {
+  Percentage = 'percentage',
+  FixedAmount = 'fixed_amount'
+}
+
+export enum DiscountApplyTo {
+  All = 'all',
+  Specific = 'specific'
+}

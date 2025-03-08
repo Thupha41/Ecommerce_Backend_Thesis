@@ -8,6 +8,7 @@ import searchRouter from './search.routes'
 import conversationsRouter from './conversations.routes'
 import staticRouter from './static.routes'
 import productsRouter from './products.routes'
+import discountsRouter from './discounts.routes'
 const router = Router()
 
 const initApiRoute = (app: Application) => {
@@ -29,6 +30,8 @@ const initApiRoute = (app: Application) => {
   router.use('/static', staticRouter)
   //products
   router.use('/products', productsRouter)
+  //discounts
+  router.use('/discounts', discountsRouter)
   //api/v1 router
   return app.use('/api/v1', router)
 }
