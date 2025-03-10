@@ -32,3 +32,10 @@ export enum DiscountApplyTo {
   All = 'all',
   Specific = 'specific'
 }
+
+export enum CartStatus {
+  Pending = 'pending',
+  Completed = 'completed',
+  Cancelled = 'cancelled',
+  Active = 'active'
+}
