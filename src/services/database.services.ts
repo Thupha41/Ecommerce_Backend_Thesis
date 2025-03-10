@@ -9,6 +9,7 @@ import Furniture from '~/models/schemas/Products/Furniture.schema'
 import Clothing from '~/models/schemas/Products/Clothing.schema'
 import Inventory from '~/models/schemas/Inventory.schema'
 import Discount from '~/models/schemas/Discount.schema'
+import Cart from '~/models/schemas/Cart.schema'
 const uri = `mongodb+srv://${envConfig.dbUsername}:${envConfig.dbPassword}@twitter-cluster.hzc1q.mongodb.net/?retryWrites=true&w=majority&appName=Twitter-Cluster`
 
 class DatabaseService {
@@ -55,6 +56,9 @@ class DatabaseService {
   }
   get discounts(): Collection<Discount> {
     return this.db.collection(envConfig.dbDiscountsCollection)
+  }
+  get carts(): Collection<Cart> {
+    return this.db.collection(envConfig.dbCartsCollection)
   }
 }
 const databaseService = new DatabaseService()

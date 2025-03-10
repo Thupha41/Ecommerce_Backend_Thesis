@@ -9,6 +9,7 @@ import conversationsRouter from './conversations.routes'
 import staticRouter from './static.routes'
 import productsRouter from './products.routes'
 import discountsRouter from './discounts.routes'
+import cartRouter from './carts.routes'
 const router = Router()
 
 const initApiRoute = (app: Application) => {
@@ -32,6 +33,8 @@ const initApiRoute = (app: Application) => {
   router.use('/products', productsRouter)
   //discounts
   router.use('/discounts', discountsRouter)
+  //carts
+  router.use('/carts', cartRouter)
   //api/v1 router
   return app.use('/api/v1', router)
 }

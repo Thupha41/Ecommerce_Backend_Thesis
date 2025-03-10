@@ -196,3 +196,10 @@ export const DISCOUNTS_MESSAGES = {
   SHOP_ID_IS_REQUIRED: 'Shop id is required',
   PRODUCTS_IS_REQUIRED: 'Products is required'
 } as const
+
+export const CARTS_MESSAGES = {
+  ADD_TO_CART_SUCCESS: 'Add to cart successfully',
+  UPDATE_CART_SUCCESS: 'Update cart successfully',
+  DELETE_CART_SUCCESS: 'Delete cart successfully',
+  GET_CART_SUCCESS: 'Get cart successfully'
+} as const

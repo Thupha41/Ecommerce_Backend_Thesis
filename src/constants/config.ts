@@ -26,6 +26,7 @@ export const envConfig = {
   dbClothesCollection: process.env.DB_CLOTHES_COLLECTION as string,
   dbInventoriesCollection: process.env.DB_INVENTORIES_COLLECTION as string,
   dbDiscountsCollection: process.env.DB_DISCOUNTS_COLLECTION as string,
+  dbCartsCollection: process.env.DB_CARTS_COLLECTION as string,
   jwtSecretAccessToken: process.env.JWT_SECRET_ACCESS_TOKEN as string,
   jwtSecretRefreshToken: process.env.JWT_SECRET_REFRESH_TOKEN as string,
   jwtSecretEmailVerifyToken: process.env.EMAIL_SECRET_TOKEN as string,

@@ -198,6 +198,11 @@ class ProductRepository {
     console.log(`[3]`, final)
     return final
   }
+  getProductById = async (productId: string) => {
+    return await this.products.findOne({
+      _id: new ObjectId(productId)
+    })
+  }
 }
 
 export const productRepository = new ProductRepository()
