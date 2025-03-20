@@ -3,10 +3,11 @@ import { envConfig } from './constants/config'
 import initApiRoute from './routes/api'
 import databaseService from './services/database.services'
 import { defaultErrorHandler } from './middlewares/error.middleware'
-
+import { initFolder } from './utils/file'
 const PORT = envConfig.port
 const app = express()
-
+//Init folder upload
+initFolder()
 // Parse JSON body to object
 app.use(express.json())
 

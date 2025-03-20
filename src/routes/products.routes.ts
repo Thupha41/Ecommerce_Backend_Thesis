@@ -9,15 +9,19 @@ import {
   getSearchProductsController,
   getAllProductsController,
   getProductDetailController,
-  updateProductController
+  updateProductController,
+  updateProductThumbController
 } from '~/controllers/products.controllers'
 import { wrapRequestHandler } from '~/utils/handlers'
 import {
   createProductValidator,
   productIdValidator,
   searchProductValidator,
-  updateProductValidator
+  updateProductValidator,
+  handleProductThumbUpload
 } from '~/middlewares/products.middlewares'
+
+import { serveImageController } from '~/controllers/upload.controllers'
 
 const productsRouter = Router()
 
@@ -30,6 +34,13 @@ const productsRouter = Router()
  */
 productsRouter.get('/', wrapRequestHandler(getAllProductsController))
 
+/**
+ * Description: Serve image
+ * Path: /image/:name
+ * Method: GET
+ * Access: Public
+ */
+productsRouter.get('/image/:name', serveImageController)
 /**
  * Description: Search products
  * Path: /search/:keySearch
@@ -64,7 +75,7 @@ productsRouter.get('/published', wrapRequestHandler(getAllPublishedForShopContro
  * Body: CreateProductReqBody
  * Access: Private
  */
-productsRouter.post('/', createProductValidator, wrapRequestHandler(createProductController))
+productsRouter.post('/', accessTokenValidator, createProductValidator, wrapRequestHandler(createProductController))
 
 /**
  * Description: Publish product
@@ -98,8 +109,23 @@ productsRouter.get('/:product_id', productIdValidator, wrapRequestHandler(getPro
  */
 productsRouter.patch(
   '/:productId',
+  accessTokenValidator,
   productIdValidator,
   updateProductValidator,
   wrapRequestHandler(updateProductController)
 )
+
+/**
+ * Description: Handle update product thumb
+ * Path: /update-thumb/:productId
+ * Method: PATCH
+ * Access: Private
+ */
+productsRouter.patch(
+  '/update-thumb/:productId',
+  productIdValidator,
+  handleProductThumbUpload,
+  wrapRequestHandler(updateProductThumbController)
+)
+
 export default productsRouter

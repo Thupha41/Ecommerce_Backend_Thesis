@@ -7,6 +7,10 @@ import { validate } from '~/utils/validation'
 import HTTP_STATUS from '~/constants/httpStatus'
 import databaseService from '~/services/database.services'
 import { ErrorWithStatus } from '~/models/Errors'
+import { getNameFromFullname, handleUploadProductThumb } from '~/utils/file'
+import { UPLOAD_IMAGE_DIR } from '~/constants/dir'
+import path from 'path'
+import sharp from 'sharp'
 
 export const createProductValidator = validate(
   checkSchema({
@@ -140,3 +144,28 @@ export const updateProductValidator = validate(
     }
   })
 )
+
+export const handleProductThumbUpload = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    // Only process if it's a multipart form
+    if (req.headers['content-type']?.includes('multipart/form-data')) {
+      const files = await handleUploadProductThumb(req)
+
+      if (files && files.length > 0) {
+        const file = files[0]
+        const newName = getNameFromFullname(file.newFilename)
+        const newFullFilename = `${newName}.jpg`
+        const newPath = path.resolve(UPLOAD_IMAGE_DIR, newFullFilename)
+
+        // Process image with sharp
+        await sharp(file.filepath).jpeg().toFile(newPath)
+
+        // Store just the filename in the database
+        req.body.product_thumb = newFullFilename
+      }
+    }
+    next()
+  } catch (error) {
+    next(error)
+  }
+}

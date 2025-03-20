@@ -203,3 +203,23 @@ export const CARTS_MESSAGES = {
   DELETE_CART_SUCCESS: 'Delete cart successfully',
   GET_CART_SUCCESS: 'Get cart successfully'
 } as const
+
+export const SELLER_MESSAGES = {
+  CREATE_SELLER_SUCCESS: 'Create restaurant successfully',
+  UPDATE_SELLER_SUCCESS: 'Update restaurant successfully',
+  GET_ALL_SELLER_SUCCESS: 'Get all restaurant successfully',
+  DELETE_SELLER_SUCCESS: 'Delete restaurant successfully',
+  INVALID_SELLER_ID: 'Invalid restaurant ID',
+  SELLER_NOT_FOUND: 'Restaurant not found',
+  NAME_IS_REQUIRED: 'Name is required',
+  NAME_MUST_BE_A_STRING: 'Name must be a string',
+  PHONE_IS_REQUIRED: 'Phone is required',
+  PHONE_MUST_BE_A_STRING: 'Phone must be a string',
+  ADDRESS_IS_REQUIRED: 'Address is required',
+  ADDRESS_MUST_BE_A_STRING: 'Address must be a string',
+  EMAIL_IS_REQUIRED: 'Email is required',
+  EMAIL_MUST_BE_A_STRING: 'Email must be a string',
+  RATING_MUST_BE_A_FLOAT: 'Rating must be a float (or double)',
+  IMAGE_MUST_BE_A_STRING: 'Image must be a string',
+  ISACTIVE_MUST_BE_A_BOOLEAN: 'isActive must be a boolean'
+} as const

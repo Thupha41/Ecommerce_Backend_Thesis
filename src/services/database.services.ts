@@ -10,6 +10,8 @@ import Clothing from '~/models/schemas/Products/Clothing.schema'
 import Inventory from '~/models/schemas/Inventory.schema'
 import Discount from '~/models/schemas/Discount.schema'
 import Cart from '~/models/schemas/Cart.schema'
+import Seller from '~/models/schemas/Seller.schema'
+import Book from '~/models/schemas/Products/Book.schema'
 const uri = `mongodb+srv://${envConfig.dbUsername}:${envConfig.dbPassword}@twitter-cluster.hzc1q.mongodb.net/?retryWrites=true&w=majority&appName=Twitter-Cluster`
 
 class DatabaseService {
@@ -59,6 +61,12 @@ class DatabaseService {
   }
   get carts(): Collection<Cart> {
     return this.db.collection(envConfig.dbCartsCollection)
+  }
+  get sellers(): Collection<Seller> {
+    return this.db.collection(envConfig.dbSellersCollection)
+  }
+  get books(): Collection<Book> {
+    return this.db.collection(envConfig.dbBooksCollection)
   }
 }
 const databaseService = new DatabaseService()

@@ -14,7 +14,8 @@ export enum TokenType {
 export enum ProductType {
   Clothing = 'Clothing',
   Furniture = 'Furniture',
-  Electronic = 'Electronic'
+  Electronic = 'Electronic',
+  Book = 'Book'
 }
 
 export enum InventoryStatus {
@@ -38,4 +39,22 @@ export enum CartStatus {
   Completed = 'completed',
   Cancelled = 'cancelled',
   Active = 'active'
+}
+
+export enum MediaType {
+  Image,
+  Video,
+  HLS
+}
+
+export enum MediaTypeQuery {
+  Image = 'image',
+  Video = 'video'
+}
+
+export enum EncodingStatus {
+  Pending, // Đang chờ ở hàng đợi (chưa được encode)
+  Processing, // Đang encode
+  Success, // Encode thành công
+  Failed // Encode thất bại
 }
