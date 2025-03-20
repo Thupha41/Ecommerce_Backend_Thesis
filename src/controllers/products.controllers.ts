@@ -14,6 +14,13 @@ import { TokenPayload } from '~/models/requests/users.requests'
 import { PRODUCTS_MESSAGES } from '~/constants/messages'
 import ProductFactory from '~/services/products.services'
 import { ProductType } from '~/constants/enums'
+import databaseService from '~/services/database.services'
+import { ErrorWithStatus } from '~/models/Errors'
+import HTTP_STATUS from '~/constants/httpStatus'
+import path from 'path'
+import { UPLOAD_IMAGE_DIR } from '~/constants/dir'
+import { MediaType } from '~/constants/enums'
+import { envConfig } from '~/constants/config'
 
 export const createProductController = async (
   req: Request<ParamsDictionary, any, CreateProductReqBody>,
@@ -173,4 +180,66 @@ export const updateProductController = async (req: Request<ProductIdReqParams>, 
     result
   })
   return
+}
+
+/*
+  Fix later in next version
+*/
+
+export const updateProductThumbController = async (
+  req: Request<ProductIdReqParams>,
+  res: Response,
+  next: NextFunction
+) => {
+  const { user_id } = req.decoded_authorization as TokenPayload
+  const { productId } = req.params
+
+  // At this point, handleProductThumbUpload middleware has already processed the file
+  // and added product_thumb to req.body if a file was uploaded
+
+  if (!req.body.product_thumb) {
+    throw new ErrorWithStatus({
+      message: PRODUCTS_MESSAGES.PRODUCT_THUMB_IS_REQUIRED,
+      status: HTTP_STATUS.BAD_REQUEST
+    })
+  }
+
+  // Get the product to verify ownership and get its type
+  const product = await databaseService.products.findOne({
+    _id: new ObjectId(productId),
+    product_shop: new ObjectId(user_id)
+  })
+
+  if (!product) {
+    throw new ErrorWithStatus({
+      message: PRODUCTS_MESSAGES.PRODUCT_NOT_FOUND,
+      status: HTTP_STATUS.NOT_FOUND
+    })
+  }
+
+  // Update only the product_thumb field
+  const result = await databaseService.products.updateOne(
+    {
+      _id: new ObjectId(productId),
+      product_shop: new ObjectId(user_id)
+    },
+    {
+      $set: {
+        product_thumb: req.body.product_thumb
+      }
+    }
+  )
+
+  const mediaResponse = {
+    url: `http://localhost:${envConfig.port}/api/v1/products/image/${req.body.product_thumb}`,
+    type: MediaType.Image
+  }
+
+  res.json({
+    message: PRODUCTS_MESSAGES.UPDATE_PRODUCT_SUCCESS,
+    result: {
+      ...result,
+      mediaResponse
+    }
+  })
 }

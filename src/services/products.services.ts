@@ -97,6 +97,58 @@ class Product {
 }
 
 // Product Type Specific Classes
+
+class Book extends Product {
+  async createProduct() {
+    const { insertedId } = await databaseService.books.insertOne({
+      ...this.product_attributes,
+      product_shop: this.product_shop,
+      created_at: new Date(),
+      updated_at: new Date()
+    })
+    if (!insertedId) throw new Error('Create new book error')
+
+    const newProduct = await super.createProduct(insertedId)
+    if (!newProduct) throw new Error('Create new book error')
+
+    return newProduct
+  }
+  async updateProduct(productId: string) {
+    /*
+      {
+        a: undefined,
+        b: null
+      }
+      //1. remove attribute has null / undefined
+      //2 check where to update
+    */
+    //1
+    const objectParams = productRepository.removeNullOrUndefinedV2({
+      product_name: this.product_name,
+      product_thumb: this.product_thumb,
+      product_description: this.product_description,
+      product_price: this.product_price,
+      product_quantity: this.product_quantity,
+      product_type: this.product_type,
+      product_attributes: this.product_attributes
+    })
+    //2
+    if (objectParams.product_attributes) {
+      //update child
+      await productRepository.updateProductById({
+        productId,
+        bodyUpdate: {
+          product_attributes: productRepository.updateNestedObjectParser(objectParams.product_attributes)
+        },
+        model: Book
+      })
+    }
+
+    const updateProduct = await super.updateProduct(productId, productRepository.updateNestedObjectParser(objectParams))
+
+    return updateProduct
+  }
+}
 class Clothing extends Product {
   async createProduct() {
     const { insertedId } = await databaseService.clothes.insertOne({
@@ -189,7 +241,8 @@ class ProductFactory {
   static productRegistry = {
     [ProductType.Clothing]: Clothing,
     [ProductType.Electronic]: Electronics,
-    [ProductType.Furniture]: Furniture
+    [ProductType.Furniture]: Furniture,
+    [ProductType.Book]: Book
   }
 
   static async createProduct(type: ProductType, payload: IProductType) {
@@ -251,7 +304,7 @@ class ProductFactory {
       sort,
       page,
       filter,
-      select: ['product_name', 'product_description', 'product_price']
+      select: ['product_name', 'product_description', 'product_price', 'product_thumb']
     })
   }
 

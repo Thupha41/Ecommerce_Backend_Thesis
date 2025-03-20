@@ -14,6 +14,7 @@ interface UserType {
   location?: string
   avatar?: string
   cover_photo?: string
+  user_role?: ObjectId
   code?: string
   code_expired?: Date
 }

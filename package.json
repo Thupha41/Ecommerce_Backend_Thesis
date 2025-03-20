@@ -3,9 +3,14 @@
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
-    "dev": "npx nodemon",
+    "dev": "npx nodemon --env=development",
+    "dev:staging": "npx nodemon --env=staging",
+    "dev:production": "npx nodemon --env=production",
     "build": "rimraf ./dist && tsc && tsc-alias",
     "start": "node dist/index.js",
+    "start:dev": "node dist/index.js --env=development",
+    "start:staging": "node dist/index.js --env=staging",
+    "start:production": "node dist/index.js --env=production",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
     "prettier": "prettier --check .",
@@ -18,6 +23,7 @@
   "devDependencies": {
     "@eslint/js": "^9.16.0",
     "@types/express": "^5.0.0",
+    "@types/formidable": "^3.4.5",
     "@types/jsonwebtoken": "^9.0.7",
     "@types/lodash": "^4.17.13",
     "@types/node": "^20.2.1",
@@ -40,12 +46,17 @@
     "dotenv": "^16.4.7",
     "express": "4.18.2",
     "express-validator": "^7.2.0",
+    "formidable": "^3.5.2",
     "handlebars": "^4.7.8",
+    "helmet": "^8.1.0",
     "jsonwebtoken": "^9.0.2",
     "lodash": "^4.17.21",
+    "minimist": "^1.2.8",
     "mongodb": "^6.11.0",
     "mongoose": "^8.11.0",
+    "nanoid": "^5.1.5",
     "nodemailer": "^6.9.16",
+    "sharp": "^0.33.5",
     "slugify": "^1.6.6"
   }
 }
