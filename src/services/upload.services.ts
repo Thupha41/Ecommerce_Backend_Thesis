@@ -52,33 +52,33 @@ class UploadService {
   }
 }
 
-const generatePromise = (delay: number) => {
-  return new Promise((resolve) => {
-    setTimeout(() => {
-      resolve('ok')
-    }, delay)
-  })
-}
+// const generatePromise = (delay: number) => {
+//   return new Promise((resolve) => {
+//     setTimeout(() => {
+//       resolve('ok')
+//     }, delay)
+//   })
+// }
 
-async function main() {
-  console.time('await tung cai')
-  await generatePromise(3000)
-  await generatePromise(3000)
-  await generatePromise(3000)
-  console.timeEnd('await tung cai')
-}
+// async function main() {
+//   console.time('await tung cai')
+//   await generatePromise(3000)
+//   await generatePromise(3000)
+//   await generatePromise(3000)
+//   console.timeEnd('await tung cai')
+// }
 
-main()
+// main()
 
-console.time('Promise all')
-Promise.all(
-  [1, 2, 3].map(async (item) => {
-    const result = await generatePromise(3000)
-    return result
-  })
-).then((result) => {
-  console.timeEnd('Promise all')
-})
+// console.time('Promise all')
+// Promise.all(
+//   [1, 2, 3].map(async (item) => {
+//     const result = await generatePromise(3000)
+//     return result
+//   })
+// ).then((result) => {
+//   console.timeEnd('Promise all')
+// })
 
 const uploadService = new UploadService()
 export default uploadService

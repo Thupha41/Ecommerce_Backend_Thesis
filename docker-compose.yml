@@ -1,0 +1,8 @@
+version: '3'
+services:
+  shoplaz-api:
+    image: dev/shoplaz:v0
+    ports:
+      - '4000:4000'
+    volumes:
+      - 'E:/10-KhoaLuan-Backend/uploads:/app/uploads:/app/uploads'

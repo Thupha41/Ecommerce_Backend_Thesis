@@ -1,30 +1,32 @@
 import { config } from 'dotenv'
 import fs from 'fs'
 import path from 'path'
-config({
-  path: '.env'
-  // path: envFilename
-})
+// import argv from 'minimist'
 
 const env = process.env.NODE_ENV
+console.log(`env: ${env}`)
 const envFilename = `.env.${env}`
+// const options = argv(process.argv.slice(2))
+
 if (!env) {
   console.log(`Bạn chưa cung cấp biến môi trường NODE_ENV (ví dụ: development, production)`)
   console.log(`Phát hiện NODE_ENV = ${env}`)
   process.exit(1)
 }
-// console.log(`Phát hiện NODE_ENV = ${env}, vì thế app sẽ dùng file môi trường là ${envFilename}`)
-// if (!fs.existsSync(path.resolve(envFilename))) {
-//   console.log(`Không tìm thấy file môi trường ${envFilename}`)
-//   console.log(`Lưu ý: App không dùng file .env, ví dụ môi trường là development thì app sẽ dùng file .env.development`)
-//   console.log(`Vui lòng tạo file ${envFilename} và tham khảo nội dung ở file .env.example`)
-//   process.exit(1)
-// }
-console.log(`Phát hiện NODE_ENV = ${env}`)
+console.log(`Phát hiện NODE_ENV = ${env}, vì thế app sẽ dùng file môi trường là ${envFilename}`)
+if (!fs.existsSync(path.resolve(envFilename))) {
+  console.log(`Không tìm thấy file môi trường ${envFilename}`)
+  console.log(`Lưu ý: App không dùng file .env, ví dụ môi trường là development thì app sẽ dùng file .env.development`)
+  console.log(`Vui lòng tạo file ${envFilename} và tham khảo nội dung ở file .env.example`)
+  process.exit(1)
+}
+
 config({
-  path: '.env'
-  // path: envFilename
+  // path: '.env'
+  path: envFilename
+  // path: options.env ? `.env.${options.env}` : '.env'
 })
+
 export const isProduction = env === 'production'
 
 export const envConfig = {
@@ -61,5 +63,6 @@ export const envConfig = {
   googleClientSecret: process.env.GOOGLE_CLIENT_SECRET as string,
   googleRedirectUri: process.env.GOOGLE_REDIRECT_URL as string,
   googleAppEmail: process.env.GOOGLE_APP_EMAIL as string,
-  googleAppPassword: process.env.GOOGLE_APP_PASSWORD as string
+  googleAppPassword: process.env.GOOGLE_APP_PASSWORD as string,
+  clientUrl: process.env.CLIENT_URL as string
 }
