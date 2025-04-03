@@ -12,8 +12,10 @@ class UploadService {
     const result: Media[] = await Promise.all(
       files.map(async (file) => {
         const newName = getNameFromFullname(file.newFilename)
+        console.log('>>> check new name', newName)
         const newFullFilename = `${newName}.jpg`
         const newPath = path.resolve(UPLOAD_IMAGE_DIR, newFullFilename)
+        console.log('>>> check new full filename', newFullFilename)
         await sharp(file.filepath).jpeg().toFile(newPath)
         // const s3Result = await uploadFileToS3({
         //   filename: 'images/' + newFullFilename,
@@ -21,7 +23,7 @@ class UploadService {
         //   contentType: mime.getType(newPath) as string
         // })
         return {
-          url: `http://localhost:${envConfig.port}/api/v1/products/image/${newFullFilename}`,
+          url: `http://${envConfig.host}:${envConfig.port}/api/v1/products/image/${newFullFilename}`,
           type: MediaType.Image
         } as Media
       })
@@ -35,6 +37,7 @@ class UploadService {
       files.map(async (file) => {
         const newName = getNameFromFullname(file.newFilename)
         const newFullFilename = `${newName}.jpg`
+        console.log('>>> check new full filename', newFullFilename)
         const newPath = path.resolve(UPLOAD_IMAGE_DIR, newFullFilename)
         await sharp(file.filepath).jpeg().toFile(newPath)
         // const s3Result = await uploadFileToS3({
@@ -43,7 +46,7 @@ class UploadService {
         //   contentType: mime.getType(newPath) as string
         // })
         return {
-          url: `http://localhost:${envConfig.port}/api/v1/products/image/${newFullFilename}`,
+          url: `http://${envConfig.host}:${envConfig.port}/api/v1/products/image/${newFullFilename}`,
           type: MediaType.Image
         } as Media
       })

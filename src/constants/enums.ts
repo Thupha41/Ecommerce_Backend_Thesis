@@ -15,7 +15,11 @@ export enum ProductType {
   Clothing = 'Clothing',
   Furniture = 'Furniture',
   Electronic = 'Electronic',
-  Book = 'Book'
+  Book = 'Book',
+  Stationery = 'Stationery',
+  Souvenir = 'Souvenir',
+  Kitchenware = 'Kitchenware',
+  Instrument = 'Instrument'
 }
 
 export enum InventoryStatus {

@@ -30,7 +30,7 @@ config({
 export const isProduction = env === 'production'
 
 export const envConfig = {
-  port: (process.env.PORT as string) || 4000,
+  port: (process.env.PORT as unknown as number) || 4000,
   host: process.env.HOST as string,
   dbName: process.env.DB_NAME as string,
   dbUsername: process.env.DB_USERNAME as string,
@@ -49,6 +49,10 @@ export const envConfig = {
   dbRolesCollection: process.env.DB_ROLES_COLLECTION as string,
   dbPermissionsCollection: process.env.DB_PERMISSIONS_COLLECTION as string,
   dbPermissionsRolesCollection: process.env.DB_PERMISSIONS_ROLES_COLLECTION as string,
+  dbStationeryCollection: process.env.DB_STATIONERY_COLLECTION as string,
+  dbSouvenirsCollection: process.env.DB_SOUVENIRS_COLLECTION as string,
+  dbKitchenwareCollection: process.env.DB_KITCHENWARE_COLLECTION as string,
+  dbInstrumentsCollection: process.env.DB_INSTRUMENTS_COLLECTION as string,
   jwtSecretAccessToken: process.env.JWT_SECRET_ACCESS_TOKEN as string,
   jwtSecretRefreshToken: process.env.JWT_SECRET_REFRESH_TOKEN as string,
   jwtSecretEmailVerifyToken: process.env.EMAIL_SECRET_TOKEN as string,
@@ -64,5 +68,10 @@ export const envConfig = {
   googleRedirectUri: process.env.GOOGLE_REDIRECT_URL as string,
   googleAppEmail: process.env.GOOGLE_APP_EMAIL as string,
   googleAppPassword: process.env.GOOGLE_APP_PASSWORD as string,
-  clientUrl: process.env.CLIENT_URL as string
+  clientUrl: process.env.CLIENT_URL as string,
+  chatServiceUrl: process.env.CHAT_SERVICE_URL as string,
+  awsAccessKeyId: process.env.AWS_ACCESS_KEY_ID as string,
+  awsSecretAccessKey: process.env.AWS_SECRET_ACCESS_KEY as string,
+  awsRegion: process.env.AWS_REGION as string,
+  s3BucketName: process.env.S3_BUCKET_NAME as string
 }
