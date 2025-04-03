@@ -11,6 +11,7 @@ import { getNameFromFullname, handleUploadProductThumb } from '~/utils/file'
 import { UPLOAD_IMAGE_DIR } from '~/constants/dir'
 import path from 'path'
 import sharp from 'sharp'
+import fsPromise from 'fs/promises'
 
 export const createProductValidator = validate(
   checkSchema({
@@ -155,11 +156,13 @@ export const handleProductThumbUpload = async (req: Request, res: Response, next
         const file = files[0]
         const newName = getNameFromFullname(file.newFilename)
         const newFullFilename = `${newName}.jpg`
+        console.log('>>> check new full filename', newFullFilename)
         const newPath = path.resolve(UPLOAD_IMAGE_DIR, newFullFilename)
 
         // Process image with sharp
         await sharp(file.filepath).jpeg().toFile(newPath)
-
+        //Delete file in folder
+        await fsPromise.unlink(file.filepath)
         // Store just the filename in the database
         req.body.product_thumb = newFullFilename
       }

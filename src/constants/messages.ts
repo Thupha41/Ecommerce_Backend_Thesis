@@ -140,7 +140,8 @@ export const PRODUCTS_MESSAGES = {
   PRODUCT_VARIATION_EXISTS: 'Product variation already exists',
   PRODUCT_VARIATION_NOT_FOUND: 'Product variation not found',
   UPDATE_PRODUCT_QUANTITY_SUCCESS: 'Update product quantity successfully',
-  UPDATE_PRODUCT_PRICE_SUCCESS: 'Update product price successfully'
+  UPDATE_PRODUCT_PRICE_SUCCESS: 'Update product price successfully',
+  GET_TOP_RATED_PRODUCTS_SUCCESS: 'Get top rated products successfully'
 } as const
 
 export const DISCOUNTS_MESSAGES = {

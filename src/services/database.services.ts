@@ -12,6 +12,10 @@ import Discount from '~/models/schemas/Discount.schema'
 import Cart from '~/models/schemas/Cart.schema'
 import Seller from '~/models/schemas/Seller.schema'
 import Book from '~/models/schemas/Products/Book.schema'
+import Stationery from '~/models/schemas/Products/Stationery.schema'
+import Souvenir from '~/models/schemas/Products/Souvenir.schema'
+import Kitchenware from '~/models/schemas/Products/Kitchenware.schema'
+import Instrument from '~/models/schemas/Products/Instrument.schema'
 const uri = `mongodb+srv://${envConfig.dbUsername}:${envConfig.dbPassword}@twitter-cluster.hzc1q.mongodb.net/?retryWrites=true&w=majority&appName=Twitter-Cluster`
 
 class DatabaseService {
@@ -67,6 +71,18 @@ class DatabaseService {
   }
   get books(): Collection<Book> {
     return this.db.collection(envConfig.dbBooksCollection)
+  }
+  get stationery(): Collection<Stationery> {
+    return this.db.collection(envConfig.dbStationeryCollection)
+  }
+  get souvenirs(): Collection<Souvenir> {
+    return this.db.collection(envConfig.dbSouvenirsCollection)
+  }
+  get kitchenware(): Collection<Kitchenware> {
+    return this.db.collection(envConfig.dbKitchenwareCollection)
+  }
+  get instruments(): Collection<Instrument> {
+    return this.db.collection(envConfig.dbInstrumentsCollection)
   }
 }
 const databaseService = new DatabaseService()

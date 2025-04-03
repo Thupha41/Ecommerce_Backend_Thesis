@@ -10,7 +10,9 @@ import {
   getAllProductsController,
   getProductDetailController,
   updateProductController,
-  updateProductThumbController
+  updateProductThumbController,
+  getTopProductsController,
+  getProductDetailByNameController
 } from '~/controllers/products.controllers'
 import { wrapRequestHandler } from '~/utils/handlers'
 import {
@@ -33,6 +35,14 @@ const productsRouter = Router()
  * Access: Public
  */
 productsRouter.get('/', wrapRequestHandler(getAllProductsController))
+
+/**
+ * Description: Get top-rated products (rating 5)
+ * Path: /top-rating
+ * Method: GET
+ * Access: Public
+ */
+productsRouter.get('/top-rating', wrapRequestHandler(getTopProductsController))
 
 /**
  * Description: Serve image
@@ -75,7 +85,7 @@ productsRouter.get('/published', wrapRequestHandler(getAllPublishedForShopContro
  * Body: CreateProductReqBody
  * Access: Private
  */
-productsRouter.post('/', accessTokenValidator, createProductValidator, wrapRequestHandler(createProductController))
+productsRouter.post('/', createProductValidator, wrapRequestHandler(createProductController))
 
 /**
  * Description: Publish product
@@ -94,6 +104,13 @@ productsRouter.post('/publish/:id', productIdValidator, wrapRequestHandler(publi
 productsRouter.post('/unpublish/:id', productIdValidator, wrapRequestHandler(unpublishProductController))
 
 /**
+ * Description: Get product detail by name
+ * Path: /get-product-by-name
+ * Method: GET
+ * Access: Public
+ */
+productsRouter.get('/get-product-by-name', wrapRequestHandler(getProductDetailByNameController))
+/**
  * Description: Get product detail
  * Path: /:product_id
  * Method: GET
@@ -109,7 +126,6 @@ productsRouter.get('/:product_id', productIdValidator, wrapRequestHandler(getPro
  */
 productsRouter.patch(
   '/:productId',
-  accessTokenValidator,
   productIdValidator,
   updateProductValidator,
   wrapRequestHandler(updateProductController)
@@ -127,5 +143,7 @@ productsRouter.patch(
   handleProductThumbUpload,
   wrapRequestHandler(updateProductThumbController)
 )
+
+
 
 export default productsRouter

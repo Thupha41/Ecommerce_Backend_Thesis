@@ -130,7 +130,7 @@ export const handleUploadProductThumb = async (req: Request) => {
     uploadDir: UPLOAD_IMAGE_TEMP_DIR,
     maxFiles: 1,
     keepExtensions: true,
-    maxFileSize: 300 * 1024, // 300KB
+    maxFileSize: 3000 * 1024, // 3000KB
     filter: function ({ name, originalFilename, mimetype }) {
       const valid = name === 'product_thumb' && Boolean(mimetype?.includes('image/'))
       if (!valid) {

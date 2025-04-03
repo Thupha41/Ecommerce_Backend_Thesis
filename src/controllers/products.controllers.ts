@@ -21,6 +21,9 @@ import path from 'path'
 import { UPLOAD_IMAGE_DIR } from '~/constants/dir'
 import { MediaType } from '~/constants/enums'
 import { envConfig } from '~/constants/config'
+import { uploadFileToS3 } from '~/utils/s3'
+import { CompleteMultipartUploadCommandOutput } from '@aws-sdk/client-s3'
+
 
 export const createProductController = async (
   req: Request<ParamsDictionary, any, CreateProductReqBody>,
@@ -133,9 +136,9 @@ export const getAllProductsController = async (
   const { limit = 50, sort = 'ctime', page = 1, filter = { isPublished: true } } = req.query
 
   const queryParams: FindAllProductsParams = {
-    limit,
+    limit: Number(limit),
     sort,
-    page,
+    page: Number(page),
     filter: {
       ...filter,
       isPublished: filter.isPublished ?? true
@@ -165,6 +168,38 @@ export const getProductDetailController = async (
   })
 }
 
+export const getProductDetailByNameController = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+
+  const product_name = req.query.product_name as string
+
+  if (!product_name) {
+    res.status(HTTP_STATUS.BAD_REQUEST).json({
+      message: PRODUCTS_MESSAGES.PRODUCT_NAME_IS_REQUIRED
+    })
+  }
+
+  // Decode the URL-encoded product name
+  const decodedProductName = decodeURIComponent(product_name)
+
+  const result = await ProductFactory.findOneProductByName({ product_name: decodedProductName })
+
+  if (!result) {
+    res.status(HTTP_STATUS.NOT_FOUND).json({
+      message: PRODUCTS_MESSAGES.PRODUCT_NOT_FOUND
+    })
+  }
+
+  res.json({
+    message: PRODUCTS_MESSAGES.GET_PRODUCT_DETAIL_SUCCESS,
+    result
+  })
+  return;
+}
+
 export const updateProductController = async (req: Request<ProductIdReqParams>, res: Response, next: NextFunction) => {
   const { user_id } = req.decoded_authorization as TokenPayload
   const { productId } = req.params
@@ -172,6 +207,7 @@ export const updateProductController = async (req: Request<ProductIdReqParams>, 
 
   const result = await ProductFactory.updateProduct(product_type as ProductType, productId, {
     ...req.body,
+    updated_at: new Date(),
     product_shop: user_id
   })
 
@@ -217,6 +253,27 @@ export const updateProductThumbController = async (
     })
   }
 
+  // Get the correct file path
+  const filePath = path.resolve(UPLOAD_IMAGE_DIR, req.body.product_thumb)
+
+  // Dynamically import mime
+  const mimeModule = await import('mime')
+  const contentType = mimeModule.default.getType(filePath) as string
+
+  // Upload image to s3
+  const s3Result = await uploadFileToS3({
+    filename: 'images/products/' + req.body.product_thumb,
+    filepath: filePath,
+    contentType: contentType
+  })
+
+  const s3Url = (s3Result as CompleteMultipartUploadCommandOutput).Location as string
+  const mediaResponse = {
+    url: s3Url,
+    type: MediaType.Image
+  }
+
+
   // Update only the product_thumb field
   const result = await databaseService.products.updateOne(
     {
@@ -225,15 +282,11 @@ export const updateProductThumbController = async (
     },
     {
       $set: {
-        product_thumb: req.body.product_thumb
+        product_thumb: s3Url,
+        updated_at: new Date()
       }
     }
   )
-
-  const mediaResponse = {
-    url: `http://localhost:${envConfig.port}/api/v1/products/image/${req.body.product_thumb}`,
-    type: MediaType.Image
-  }
 
   res.json({
     message: PRODUCTS_MESSAGES.UPDATE_PRODUCT_SUCCESS,
@@ -241,5 +294,28 @@ export const updateProductThumbController = async (
       ...result,
       mediaResponse
     }
+  })
+}
+
+export const getTopProductsController = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  const queryParams: FindAllProductsParams = {
+    limit: 50,
+    sort: 'product_ratingsAverage',
+    page: 1,
+    filter: {
+      isPublished: true,
+      // product_ratingsAverage: { $eq: 4.5 }
+    }
+  }
+
+  const result = await ProductFactory.findAllProducts(queryParams)
+
+  res.json({
+    message: PRODUCTS_MESSAGES.GET_TOP_RATED_PRODUCTS_SUCCESS,
+    result
   })
 }

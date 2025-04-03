@@ -251,6 +251,7 @@ class UsersService {
       })
     )
     return {
+      user_id,
       access_token,
       refresh_token
     }

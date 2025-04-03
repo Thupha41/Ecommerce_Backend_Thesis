@@ -14,7 +14,6 @@ export const uploadImageController = async (req: Request, res: Response, next: N
 }
 export const serveImageController = (req: Request, res: Response, next: NextFunction) => {
   const { name } = req.params
-  console.log('>>> check name', name)
   res.sendFile(path.resolve(UPLOAD_IMAGE_DIR, name), (err) => {
     if (err) {
       res.status((err as any).status).send('Not found')
