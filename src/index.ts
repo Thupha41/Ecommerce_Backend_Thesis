@@ -7,7 +7,7 @@ import { initFolder } from './utils/file'
 import helmet from 'helmet'
 import cors, { CorsOptions } from 'cors'
 import rateLimit from 'express-rate-limit'
-
+import compression from 'compression'
 const PORT = envConfig.port
 const HOST = envConfig.host
 const app = express()
@@ -22,9 +22,13 @@ const limiter = rateLimit({
 app.use(limiter)
 
 app.use(helmet())
+
+app.use(compression())
+
 // const corsOptions: CorsOptions = {
 //   origin: isProduction ? envConfig.clientUrl : '*'
 // }
+
 const corsOptions: CorsOptions = {
   origin: (origin, callback) => {
     // Allow requests with no origin (like mobile apps, curl, Postman)

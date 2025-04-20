@@ -1,6 +1,7 @@
 import { ObjectId, Sort, SortDirection } from 'mongodb'
 import databaseService from '~/services/database.services'
 import { ProductUpdateReqBody } from '~/models/requests/products.requests'
+import { ICheckoutProduct } from '../requests/checkout.requests'
 
 class ProductRepository {
   private products = databaseService.products
@@ -219,6 +220,21 @@ class ProductRepository {
     return await this.products.findOne({
       _id: new ObjectId(productId)
     })
+  }
+  checkProductByServer = async (products: ICheckoutProduct[]) => {
+    return await Promise.all(
+      products.map(async (product) => {
+        const foundProduct = await this.getProductById(product.productId)
+        if (foundProduct) {
+          return {
+            price: foundProduct.product_price,
+            quantity: product.quantity,
+            productId: product.productId
+          }
+        }
+        return null
+      })
+    )
   }
 }
 

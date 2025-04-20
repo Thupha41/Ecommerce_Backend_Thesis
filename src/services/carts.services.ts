@@ -1,10 +1,12 @@
-import CartRepository from '~/models/repositories/cart.repo'
+import { cartRepository } from '~/models/repositories/cart.repo'
 import databaseService from './database.services'
 import { ObjectId } from 'mongodb'
 import { AddToCartReqBody, UpdateCartReqBody, GetListCartReqQuery } from '~/models/requests/carts.requests'
 import { ErrorWithStatus } from '~/models/Errors'
 import { productRepository } from '~/models/repositories/products.repo'
 import { CartStatus } from '~/constants/enums'
+import { USERS_MESSAGES, PRODUCTS_MESSAGES, CARTS_MESSAGES } from '~/constants/messages'
+import HTTP_STATUS from '~/constants/httpStatus'
 /*
     1. Add product to cart [user]
     2. Reduce product quantity by one [user]
@@ -14,15 +16,15 @@ import { CartStatus } from '~/constants/enums'
     6. Delete cart item [user]
 */
 class CartService {
-  private cartRepo = new CartRepository()
+  private cartRepo = cartRepository
 
   async addToCart(userId: string, { product }: AddToCartReqBody): Promise<any> {
     // Check user exists
     const foundUser = await databaseService.users.findOne({ _id: new ObjectId(userId) })
     if (!foundUser) {
       throw new ErrorWithStatus({
-        message: 'User not found',
-        status: 404
+        message: USERS_MESSAGES.USER_NOT_FOUND,
+        status: HTTP_STATUS.NOT_FOUND
       })
     }
     // check cart co ton tai hay khong
@@ -31,6 +33,18 @@ class CartService {
     //   // create new cart
     //   return await this.cartRepo.createUserCart(userId, { product })
     // }
+
+    // Check product exists
+    const foundProduct = await databaseService.products.findOne({
+      _id: new ObjectId(product.product_id)
+    })
+    if (!foundProduct) {
+      throw new ErrorWithStatus({
+        message: PRODUCTS_MESSAGES.PRODUCT_NOT_FOUND,
+        status: HTTP_STATUS.NOT_FOUND
+      })
+    }
+
     //check so luong
     //neu co gio hang roi nhung chua co san pham?
     // if (!userCart.cart_products.length) {
@@ -71,22 +85,22 @@ class CartService {
     const foundProduct = await productRepository.getProductById(productId)
     if (!foundProduct) {
       throw new ErrorWithStatus({
-        message: 'Product not found',
-        status: 404
+        message: PRODUCTS_MESSAGES.PRODUCT_NOT_FOUND,
+        status: HTTP_STATUS.NOT_FOUND
       })
     }
     //compare
     if (foundProduct.product_shop.toString() !== shop_order_ids[0]?.shopId) {
       throw new ErrorWithStatus({
         message: 'Product do not belong to the shop',
-        status: 400
+        status: HTTP_STATUS.BAD_REQUEST
       })
     }
     //check so luong
     if (product_quantity > foundProduct.product_quantity || product_quantity <= 0) {
       throw new ErrorWithStatus({
         message: 'Product quantity is not enough',
-        status: 400
+        status: HTTP_STATUS.BAD_REQUEST
       })
     }
     if (product_quantity === 0) {
@@ -106,8 +120,8 @@ class CartService {
     const foundUser = await databaseService.users.findOne({ _id: new ObjectId(userId) })
     if (!foundUser) {
       throw new ErrorWithStatus({
-        message: 'User not found',
-        status: 404
+        message: USERS_MESSAGES.USER_NOT_FOUND,
+        status: HTTP_STATUS.NOT_FOUND
       })
     }
 
@@ -115,8 +129,8 @@ class CartService {
     const foundProduct = await productRepository.getProductById(productId)
     if (!foundProduct) {
       throw new ErrorWithStatus({
-        message: 'Product not found',
-        status: 404
+        message: PRODUCTS_MESSAGES.PRODUCT_NOT_FOUND,
+        status: HTTP_STATUS.NOT_FOUND
       })
     }
 
@@ -128,8 +142,8 @@ class CartService {
 
     if (!userCart) {
       throw new ErrorWithStatus({
-        message: 'Cart not found',
-        status: 404
+        message: CARTS_MESSAGES.CART_NOT_FOUND,
+        status: HTTP_STATUS.NOT_FOUND
       })
     }
 
@@ -138,8 +152,8 @@ class CartService {
 
     if (!productInCart) {
       throw new ErrorWithStatus({
-        message: 'Product not in cart',
-        status: 404
+        message: CARTS_MESSAGES.PRODUCT_NOT_IN_CART,
+        status: HTTP_STATUS.NOT_FOUND
       })
     }
 
@@ -151,7 +165,7 @@ class CartService {
     const query = { cart_userId: new ObjectId(userId), cart_status: CartStatus.Active }
     const updateSet = {
       $pull: {
-        cart_products: { product_id: productId }
+        cart_products: { product_id: new ObjectId(productId) }
       },
       $inc: {
         cart_count_product: -quantityToRemove,
@@ -174,8 +188,8 @@ class CartService {
     const foundProduct = await productRepository.getProductById(productId)
     if (!foundProduct) {
       throw new ErrorWithStatus({
-        message: 'Product not found',
-        status: 404
+        message: PRODUCTS_MESSAGES.PRODUCT_NOT_FOUND,
+        status: HTTP_STATUS.NOT_FOUND
       })
     }
     // Get current quantity in cart
@@ -187,11 +201,11 @@ class CartService {
 
     if (!cart) {
       throw new ErrorWithStatus({
-        message: 'Product not in cart',
-        status: 404
+        message: CARTS_MESSAGES.PRODUCT_NOT_IN_CART,
+        status: HTTP_STATUS.NOT_FOUND
       })
     }
-    const cartItem = cart.cart_products.find((p) => p.product_id === productId)
+    const cartItem = cart.cart_products.find((p) => p.product_id === new ObjectId(productId))
     const itemPrice = cartItem?.product_price || foundProduct.product_price
     return await this.cartRepo.updateUserCartQuantity(userId, {
       product: {
@@ -207,8 +221,8 @@ class CartService {
     const foundProduct = await productRepository.getProductById(productId)
     if (!foundProduct) {
       throw new ErrorWithStatus({
-        message: 'Product not found',
-        status: 404
+        message: PRODUCTS_MESSAGES.PRODUCT_NOT_FOUND,
+        status: HTTP_STATUS.NOT_FOUND
       })
     }
 
@@ -222,11 +236,11 @@ class CartService {
     if (!cart) {
       throw new ErrorWithStatus({
         message: 'Product not in cart',
-        status: 404
+        status: HTTP_STATUS.NOT_FOUND
       })
     }
 
-    const cartItem = cart.cart_products.find((p) => p.product_id === productId)
+    const cartItem = cart.cart_products.find((p) => p.product_id.toString() === productId)
     if (!cartItem || (cartItem.product_quantity as number) <= 1) {
       // If quantity would become 0, remove the item
       return await this.deleteUserCart(userId, productId)

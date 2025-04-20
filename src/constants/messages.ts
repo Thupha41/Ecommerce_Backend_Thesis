@@ -202,7 +202,10 @@ export const CARTS_MESSAGES = {
   ADD_TO_CART_SUCCESS: 'Add to cart successfully',
   UPDATE_CART_SUCCESS: 'Update cart successfully',
   DELETE_CART_SUCCESS: 'Delete cart successfully',
-  GET_CART_SUCCESS: 'Get cart successfully'
+  GET_CART_SUCCESS: 'Get cart successfully',
+  CART_NOT_FOUND: 'Cart not found',
+  INVALID_CART_ITEM: 'Invalid cart item',
+  PRODUCT_NOT_IN_CART: 'Product not in cart'
 } as const
 
 export const SELLER_MESSAGES = {
@@ -223,4 +226,57 @@ export const SELLER_MESSAGES = {
   RATING_MUST_BE_A_FLOAT: 'Rating must be a float (or double)',
   IMAGE_MUST_BE_A_STRING: 'Image must be a string',
   ISACTIVE_MUST_BE_A_BOOLEAN: 'isActive must be a boolean'
+} as const
+
+export const DELIVERY_INFO_MESSAGES = {
+  PROVINCE_CITY_IS_REQUIRED: 'Province city is required',
+  PROVINCE_CITY_MUST_BE_A_STRING: 'Province city must be a string',
+  DISTRICT_IS_REQUIRED: 'District is required',
+  DISTRICT_MUST_BE_A_STRING: 'District must be a string',
+  WARD_IS_REQUIRED: 'Ward is required',
+  WARD_MUST_BE_A_STRING: 'Ward must be a string',
+  STREET_IS_REQUIRED: 'Street is required',
+  STREET_MUST_BE_A_STRING: 'Street must be a string',
+  IS_DEFAULT_MUST_BE_A_BOOLEAN: 'Is default must be a boolean',
+  DELIVERY_INFO_IS_REQUIRED: 'Delivery info is required',
+  DELIVERY_INFO_NOT_FOUND: 'Delivery info not found',
+  INVALID_DELIVERY_INFO_ID: 'Invalid delivery info id',
+  USER_ALREADY_HAVE_DEFAULT_DELIVERY_INFO: 'User already have default delivery info',
+  CREATE_DELIVERY_INFO_SUCCESS: 'Create delivery info successfully',
+  UPDATE_DELIVERY_INFO_SUCCESS: 'Update delivery info successfully',
+  GET_ALL_DELIVERY_INFO_SUCCESS: 'Get all delivery info successfully',
+  DELETE_DELIVERY_INFO_SUCCESS: 'Delete delivery info successfully',
+  GET_DELIVERY_DETAIL_SUCCESS: 'Get delivery detail successfully',
+  GET_DELIVERY_DEFAULT_SUCCESS: 'Get delivery default successfully'
+} as const
+
+export const ORDERS_MESSAGES = {
+  ORDER_NOT_FOUND: 'Order not found',
+  ORDER_ALREADY_CANCELLED: 'Order already cancelled',
+  ORDER_ALREADY_CONFIRMED: 'Order already confirmed',
+  ORDER_ALREADY_SHIPPED: 'Order already shipped',
+  ORDER_ALREADY_DELIVERED: 'Order already delivered',
+  CHECKOUT_DELIVERY_INFORMATION_SUCCESS: 'Checkout delivery information successfully',
+  CHECKOUT_REVIEW_ORDER_SUCCESS: 'Checkout review order successfully',
+  GET_ORDER_BY_USER_SUCCESS: 'Get order by user successfully',
+  GET_ALL_ORDERS_SUCCESS: 'Get all orders successfully',
+  GET_ONE_ORDER_BY_USER_SUCCESS: 'Get one order by user successfully',
+  PLACE_ORDER_SUCCESS: 'Place order successfully',
+  CANCEL_ORDER_SUCCESS: 'Cancel order successfully',
+  UPDATE_ORDER_STATUS_SUCCESS: 'Update order status successfully'
+} as const
+
+export const INVENTORY_MESSAGES = {
+  ADD_STOCK_TO_INVENTORY_SUCCESS: 'Add stock to inventory successfully',
+  INVALID_INVENTORY_ID: 'Invalid inventory id',
+  INVENTORY_NOT_FOUND: 'Inventory not found',
+  SHOP_ID_IS_REQUIRED: 'Shop id is required',
+  SHOP_ID_MUST_BE_A_STRING: 'Shop id must be a string',
+  PRODUCT_ID_IS_REQUIRED: 'Product id is required',
+  PRODUCT_ID_MUST_BE_A_STRING: 'Product id must be a string',
+  LOCATION_IS_REQUIRED: 'Location is required',
+  LOCATION_MUST_BE_A_STRING: 'Location must be a string',
+  STOCK_IS_REQUIRED: 'Stock is required',
+  STOCK_MUST_BE_A_NUMBER: 'Stock must be a number',
+  STOCK_MUST_BE_GREATER_THAN_0: 'Stock must be greater than 0'
 } as const
