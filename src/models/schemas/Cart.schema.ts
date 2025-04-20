@@ -2,7 +2,7 @@ import { ObjectId } from 'mongodb'
 import { CartStatus, InventoryStatus } from 'src/constants/enums'
 // Specific Cart Type Interfaces
 export interface ICartProduct {
-  product_id: string
+  product_id: ObjectId
   product_quantity?: number
   product_price?: number
   product_name?: string

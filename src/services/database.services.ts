@@ -12,6 +12,8 @@ import Discount from '~/models/schemas/Discount.schema'
 import Cart from '~/models/schemas/Cart.schema'
 import Seller from '~/models/schemas/Seller.schema'
 import Book from '~/models/schemas/Products/Book.schema'
+import Order from '~/models/schemas/Order.schema'
+import DeliveryInfo from '~/models/schemas/DeliveryInfo.schema'
 const uri = `mongodb+srv://${envConfig.dbUsername}:${envConfig.dbPassword}@twitter-cluster.hzc1q.mongodb.net/?retryWrites=true&w=majority&appName=Twitter-Cluster`
 
 class DatabaseService {
@@ -67,6 +69,17 @@ class DatabaseService {
   }
   get books(): Collection<Book> {
     return this.db.collection(envConfig.dbBooksCollection)
+  }
+  get orders(): Collection<Order> {
+    return this.db.collection(envConfig.dbOrdersCollection)
+  }
+  get deliveryInfos(): Collection<DeliveryInfo> {
+    return this.db.collection(envConfig.dbDeliveryInfosCollection)
+  }
+
+  // Method to get the MongoDB client for transactions
+  getMongoClient(): MongoClient {
+    return this.client
   }
 }
 const databaseService = new DatabaseService()

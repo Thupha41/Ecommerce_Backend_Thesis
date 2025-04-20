@@ -32,6 +32,7 @@ export const isProduction = env === 'production'
 export const envConfig = {
   port: (process.env.PORT as string) || 4000,
   host: process.env.HOST as string,
+  // database
   dbName: process.env.DB_NAME as string,
   dbUsername: process.env.DB_USERNAME as string,
   dbPassword: process.env.DB_PASSWORD as string,
@@ -49,6 +50,9 @@ export const envConfig = {
   dbRolesCollection: process.env.DB_ROLES_COLLECTION as string,
   dbPermissionsCollection: process.env.DB_PERMISSIONS_COLLECTION as string,
   dbPermissionsRolesCollection: process.env.DB_PERMISSIONS_ROLES_COLLECTION as string,
+  dbOrdersCollection: process.env.DB_ORDERS_COLLECTION as string,
+  dbDeliveryInfosCollection: process.env.DB_DELIVERY_INFOS_COLLECTION as string,
+  // jwt authentication
   jwtSecretAccessToken: process.env.JWT_SECRET_ACCESS_TOKEN as string,
   jwtSecretRefreshToken: process.env.JWT_SECRET_REFRESH_TOKEN as string,
   jwtSecretEmailVerifyToken: process.env.EMAIL_SECRET_TOKEN as string,
@@ -64,5 +68,6 @@ export const envConfig = {
   googleRedirectUri: process.env.GOOGLE_REDIRECT_URL as string,
   googleAppEmail: process.env.GOOGLE_APP_EMAIL as string,
   googleAppPassword: process.env.GOOGLE_APP_PASSWORD as string,
+  // client url
   clientUrl: process.env.CLIENT_URL as string
 }

@@ -1,7 +1,13 @@
-import { ICartProduct } from '~/models/schemas/Cart.schema'
-
+export interface ICartItemProduct {
+  product_id: string
+  product_quantity: number
+  product_price?: number
+  shop_id?: string
+  name?: string
+  product_thumb?: string
+}
 export interface AddToCartReqBody {
-  product: ICartProduct
+  product: ICartItemProduct
 }
 // {
 //   "userId": 1,

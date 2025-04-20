@@ -58,3 +58,11 @@ export enum EncodingStatus {
   Success, // Encode thành công
   Failed // Encode thất bại
 }
+
+export enum OrderStatus {
+  Pending = 'pending',
+  Confirmed = 'confirmed',
+  Shipped = 'shipped',
+  Delivered = 'delivered',
+  Cancelled = 'cancelled'
+}

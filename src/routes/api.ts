@@ -11,6 +11,8 @@ import productsRouter from './products.routes'
 import discountsRouter from './discounts.routes'
 import cartRouter from './carts.routes'
 import sellersRouter from './sellers.routes'
+import deliveryInfoRouter from './deliveryInfo.routes'
+import inventoryRouter from './inventories.routes'
 const router = Router()
 
 const initApiRoute = (app: Application) => {
@@ -38,6 +40,10 @@ const initApiRoute = (app: Application) => {
   router.use('/carts', cartRouter)
   //sellers
   router.use('/sellers', sellersRouter)
+  //delivery info
+  router.use('/delivery-info', deliveryInfoRouter)
+  //inventories
+  router.use('/inventories', inventoryRouter)
   //api/v1 router
   return app.use('/api/v1', router)
 }
