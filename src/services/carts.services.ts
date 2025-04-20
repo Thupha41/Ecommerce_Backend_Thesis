@@ -33,6 +33,7 @@ class CartService {
     //   // create new cart
     //   return await this.cartRepo.createUserCart(userId, { product })
     // }
+
     // Check product exists
     const foundProduct = await databaseService.products.findOne({
       _id: new ObjectId(product.product_id)
@@ -43,6 +44,7 @@ class CartService {
         status: HTTP_STATUS.NOT_FOUND
       })
     }
+
     //check so luong
     //neu co gio hang roi nhung chua co san pham?
     // if (!userCart.cart_products.length) {
@@ -55,7 +57,9 @@ class CartService {
 
     //gio hang ton tai va co san pham thi update quantity
     // Use the updated repository method that handles both new and existing products
-    return await this.cartRepo.updateUserCartQuantity(userId, { product })
+    const res = await this.cartRepo.updateUserCartQuantity(userId, { product })
+    console.log('>>> check add to cart', res)
+    return res
   }
   //update cart
   /*

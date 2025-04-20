@@ -9,6 +9,7 @@ import cors, { CorsOptions } from 'cors'
 import rateLimit from 'express-rate-limit'
 import compression from 'compression'
 const PORT = envConfig.port
+const HOST = envConfig.host
 const app = express()
 
 const limiter = rateLimit({
@@ -21,9 +22,45 @@ const limiter = rateLimit({
 app.use(limiter)
 
 app.use(helmet())
+
 app.use(compression())
+
+// const corsOptions: CorsOptions = {
+//   origin: isProduction ? envConfig.clientUrl : '*'
+// }
+
 const corsOptions: CorsOptions = {
-  origin: isProduction ? envConfig.clientUrl : '*'
+  origin: (origin, callback) => {
+    // Allow requests with no origin (like mobile apps, curl, Postman)
+    if (!origin) {
+      return callback(null, true)
+    }
+
+    const allowedOrigins = [
+      envConfig.clientUrl,  // Your Expo URL from env
+      /^exp:\/\/.*$/,       // Any Expo URL
+      /^http:\/\/localhost:\d+$/,  // Local development
+      envConfig.chatServiceUrl
+    ]
+
+    // Check if the origin matches any allowed pattern
+    const isAllowed = allowedOrigins.some(allowedOrigin => {
+      if (typeof allowedOrigin === 'string') {
+        return allowedOrigin === origin
+      }
+      // If it's a RegExp, test it
+      return allowedOrigin.test(origin)
+    })
+
+    if (isAllowed) {
+      return callback(null, true)
+    }
+
+    callback(new Error('Not allowed by CORS'))
+  },
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
+  credentials: true,
+  allowedHeaders: ['Content-Type', 'Authorization']
 }
 app.use(cors(corsOptions))
 //Init folder upload
@@ -40,6 +77,6 @@ app.use(defaultErrorHandler)
 // Connect to database
 databaseService.connect()
 
-app.listen(PORT, () => {
-  console.log(`Example app listening on port ${PORT}`)
+app.listen(PORT, HOST, () => {
+  console.log(`Server running at http://${HOST}:${PORT}`)
 })

@@ -30,7 +30,8 @@ class Product {
     product_type,
     product_description,
     product_shop,
-    product_attributes
+    product_attributes,
+    product_ratingsAverage
   }: IProductType) {
     this.product_name = product_name
     this.product_thumb = product_thumb
@@ -41,6 +42,7 @@ class Product {
     this.product_shop = typeof product_shop === 'string' ? new ObjectId(product_shop) : product_shop
     this.product_attributes = product_attributes
     this.product_slug = this.generateSlug(product_name)
+    this.product_ratingsAverage = product_ratingsAverage || 4.5
   }
 
   private generateSlug(name: string): string {
@@ -149,6 +151,215 @@ class Book extends Product {
     return updateProduct
   }
 }
+
+class Stationery extends Product {
+  async createProduct() {
+    const { insertedId } = await databaseService.stationery.insertOne({
+      ...this.product_attributes,
+      product_shop: this.product_shop,
+      created_at: new Date(),
+      updated_at: new Date()
+    })
+    if (!insertedId) throw new Error('Create new stationery error')
+
+    const newProduct = await super.createProduct(insertedId)
+    if (!newProduct) throw new Error('Create new stationery error')
+
+    return newProduct
+  }
+  async updateProduct(productId: string) {
+    /*
+      {
+        a: undefined,
+        b: null
+      }
+      //1. remove attribute has null / undefined
+      //2 check where to update
+    */
+    //1
+    const objectParams = productRepository.removeNullOrUndefinedV2({
+      product_name: this.product_name,
+      product_thumb: this.product_thumb,
+      product_description: this.product_description,
+      product_price: this.product_price,
+      product_quantity: this.product_quantity,
+      product_type: this.product_type,
+      product_attributes: this.product_attributes
+    })
+    //2
+    if (objectParams.product_attributes) {
+      //update child
+      await productRepository.updateProductById({
+        productId,
+        bodyUpdate: {
+          product_attributes: productRepository.updateNestedObjectParser(objectParams.product_attributes)
+        },
+        model: Stationery
+      })
+    }
+
+    const updateProduct = await super.updateProduct(productId, productRepository.updateNestedObjectParser(objectParams))
+
+    return updateProduct
+  }
+}
+
+class Kitchenware extends Product {
+  async createProduct() {
+    const { insertedId } = await databaseService.kitchenware.insertOne({
+      ...this.product_attributes,
+      product_shop: this.product_shop,
+      created_at: new Date(),
+      updated_at: new Date()
+    })
+    if (!insertedId) throw new Error('Create new kitchenware error')
+
+    const newProduct = await super.createProduct(insertedId)
+    if (!newProduct) throw new Error('Create new kitchenware error')
+
+    return newProduct
+  }
+  async updateProduct(productId: string) {
+    /*
+      {
+        a: undefined,
+        b: null
+      }
+      //1. remove attribute has null / undefined
+      //2 check where to update
+    */
+    //1
+    const objectParams = productRepository.removeNullOrUndefinedV2({
+      product_name: this.product_name,
+      product_thumb: this.product_thumb,
+      product_description: this.product_description,
+      product_price: this.product_price,
+      product_quantity: this.product_quantity,
+      product_type: this.product_type,
+      product_attributes: this.product_attributes
+    })
+    //2
+    if (objectParams.product_attributes) {
+      //update child
+      await productRepository.updateProductById({
+        productId,
+        bodyUpdate: {
+          product_attributes: productRepository.updateNestedObjectParser(objectParams.product_attributes)
+        },
+        model: Kitchenware
+      })
+    }
+
+    const updateProduct = await super.updateProduct(productId, productRepository.updateNestedObjectParser(objectParams))
+
+    return updateProduct
+  }
+}
+
+class Instrument extends Product {
+  async createProduct() {
+    const { insertedId } = await databaseService.instruments.insertOne({
+      ...this.product_attributes,
+      product_shop: this.product_shop,
+      created_at: new Date(),
+      updated_at: new Date()
+    })
+    if (!insertedId) throw new Error('Create new instrument error')
+
+    const newProduct = await super.createProduct(insertedId)
+    if (!newProduct) throw new Error('Create new instrument error')
+
+    return newProduct
+  }
+  async updateProduct(productId: string) {
+    /*
+      {
+        a: undefined,
+        b: null
+      }
+      //1. remove attribute has null / undefined
+      //2 check where to update
+    */
+    //1
+    const objectParams = productRepository.removeNullOrUndefinedV2({
+      product_name: this.product_name,
+      product_thumb: this.product_thumb,
+      product_description: this.product_description,
+      product_price: this.product_price,
+      product_quantity: this.product_quantity,
+      product_type: this.product_type,
+      product_attributes: this.product_attributes
+    })
+    //2
+    if (objectParams.product_attributes) {
+      //update child
+      await productRepository.updateProductById({
+        productId,
+        bodyUpdate: {
+          product_attributes: productRepository.updateNestedObjectParser(objectParams.product_attributes)
+        },
+        model: Instrument
+      })
+    }
+
+    const updateProduct = await super.updateProduct(productId, productRepository.updateNestedObjectParser(objectParams))
+
+    return updateProduct
+  }
+}
+
+class Souvenir extends Product {
+  async createProduct() {
+    const { insertedId } = await databaseService.souvenirs.insertOne({
+      ...this.product_attributes,
+      product_shop: this.product_shop,
+      created_at: new Date(),
+      updated_at: new Date()
+    })
+    if (!insertedId) throw new Error('Create new souvenir error')
+
+    const newProduct = await super.createProduct(insertedId)
+    if (!newProduct) throw new Error('Create new souvenir error')
+
+    return newProduct
+  }
+  async updateProduct(productId: string) {
+    /*
+      {
+        a: undefined,
+        b: null
+      }
+      //1. remove attribute has null / undefined
+      //2 check where to update
+    */
+    //1
+    const objectParams = productRepository.removeNullOrUndefinedV2({
+      product_name: this.product_name,
+      product_thumb: this.product_thumb,
+      product_description: this.product_description,
+      product_price: this.product_price,
+      product_quantity: this.product_quantity,
+      product_type: this.product_type,
+      product_attributes: this.product_attributes
+    })
+    //2
+    if (objectParams.product_attributes) {
+      //update child
+      await productRepository.updateProductById({
+        productId,
+        bodyUpdate: {
+          product_attributes: productRepository.updateNestedObjectParser(objectParams.product_attributes)
+        },
+        model: Souvenir
+      })
+    }
+
+    const updateProduct = await super.updateProduct(productId, productRepository.updateNestedObjectParser(objectParams))
+
+    return updateProduct
+  }
+}
+
 class Clothing extends Product {
   async createProduct() {
     const { insertedId } = await databaseService.clothes.insertOne({
@@ -242,7 +453,11 @@ class ProductFactory {
     [ProductType.Clothing]: Clothing,
     [ProductType.Electronic]: Electronics,
     [ProductType.Furniture]: Furniture,
-    [ProductType.Book]: Book
+    [ProductType.Book]: Book,
+    [ProductType.Stationery]: Stationery,
+    [ProductType.Souvenir]: Souvenir,
+    [ProductType.Kitchenware]: Kitchenware,
+    [ProductType.Instrument]: Instrument
   }
 
   static async createProduct(type: ProductType, payload: IProductType) {
@@ -304,13 +519,20 @@ class ProductFactory {
       sort,
       page,
       filter,
-      select: ['product_name', 'product_description', 'product_price', 'product_thumb']
+      select: ['product_name', 'product_price', 'product_thumb', 'product_shop', 'product_attributes', 'product_slug', 'product_ratingsAverage', 'product_variations', 'isDraft', 'isPublished', '_id', 'product_type']
     })
   }
 
   static async findOneProduct({ product_id }: { product_id: string }) {
     return await productRepository.findOne({
       product_id,
+      unSelect: ['__v', 'product_variations']
+    })
+  }
+
+  static async findOneProductByName({ product_name }: { product_name: string }) {
+    return await productRepository.findOneByName({
+      product_name,
       unSelect: ['__v', 'product_variations']
     })
   }
@@ -323,6 +545,7 @@ class ProductFactory {
   static async unPublishProductByShop({ product_shop, product_id }: { product_shop: string; product_id: string }) {
     return await productRepository.unPublishProduct({ product_shop, product_id })
   }
+
 }
 
 export default ProductFactory

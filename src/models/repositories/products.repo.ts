@@ -130,6 +130,23 @@ class ProductRepository {
 
     return await this.products.findOne({ _id: new ObjectId(product_id) }, { projection })
   }
+  async findOneByName({ product_name, unSelect }: { product_name: string; unSelect?: string[] }) {
+    const projection: Record<string, 1 | 0> = {}
+    if (unSelect) {
+      unSelect.forEach((field) => {
+        projection[field] = 0
+      })
+    }
+
+    // Use a case-insensitive regex match instead of exact match
+    return await this.products.findOne(
+      {
+        product_name: { $regex: new RegExp('^' + product_name + '$', 'i') },
+        isPublished: true
+      },
+      { projection }
+    )
+  }
 
   async createTextIndexes() {
     try {
@@ -189,11 +206,11 @@ class ProductRepository {
         // Only add nested properties if the result is not empty
         if (Object.keys(res).length > 0) {
           Object.keys(res).forEach((resKey) => {
-            ;(final as Record<string, unknown>)[`${key}.${resKey}`] = res[resKey as keyof typeof res]
+            ; (final as Record<string, unknown>)[`${key}.${resKey}`] = res[resKey as keyof typeof res]
           })
         }
       } else {
-        ;(final as Record<string, unknown>)[key] = cleanObj[key as keyof ProductUpdateReqBody]
+        ; (final as Record<string, unknown>)[key] = cleanObj[key as keyof ProductUpdateReqBody]
       }
     })
     console.log(`[3]`, final)

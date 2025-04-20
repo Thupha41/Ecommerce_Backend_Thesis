@@ -42,6 +42,14 @@ class CartRepository {
     const product_quantity = product.product_quantity || 0
     const product_price = product.product_price || 0
 
+    //check product exist
+    const foundProduct = await databaseService.products.findOne({ _id: new ObjectId(product_id) })
+    if (!foundProduct) {
+      throw new ErrorWithStatus({
+        message: 'Product not found',
+        status: 404
+      })
+    }
     // Get current cart to check existing quantity
     const existingCart = await this.carts.findOne({
       cart_userId: new ObjectId(userId),
