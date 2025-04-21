@@ -10,8 +10,24 @@ import HTTP_STATUS from '~/constants/httpStatus'
 class DeliveryInfoService {
   async createDeliveryInfo(
     user_id: string,
-    { province_city, district, ward, street, is_default }: UpsertDeliveryInfoReqBody
+    { personal_detail, shipping_address, is_default }: UpsertDeliveryInfoReqBody
   ) {
+    // Kiểm tra trực tiếp trong service để đảm bảo không có giá trị rỗng
+    if (!personal_detail || !personal_detail.name || !personal_detail.phone) {
+      throw new ErrorWithStatus({
+        message: 'Personal details (name and phone_number) are required',
+        status: HTTP_STATUS.BAD_REQUEST
+      })
+    }
+
+    if (!shipping_address || !shipping_address.province_city || !shipping_address.district ||
+      !shipping_address.ward || !shipping_address.street) {
+      throw new ErrorWithStatus({
+        message: 'Shipping address details (province_city, district, ward, street) are required',
+        status: HTTP_STATUS.BAD_REQUEST
+      })
+    }
+
     //found user
     const user = await databaseService.users.findOne({
       _id: new ObjectId(user_id)
@@ -22,34 +38,32 @@ class DeliveryInfoService {
         status: HTTP_STATUS.NOT_FOUND
       })
     }
+
     //check default delivery info
     if (is_default) {
-      const deliveryDefault = await databaseService.deliveryInfos.findOne({
-        user_id: new ObjectId(user_id),
-        is_default: true
-      })
-      if (deliveryDefault) {
-        throw new ErrorWithStatus({
-          message: DELIVERY_INFO_MESSAGES.USER_ALREADY_HAVE_DEFAULT_DELIVERY_INFO,
-          status: HTTP_STATUS.BAD_REQUEST
-        })
-      }
+      // Nếu địa chỉ mới là mặc định, cập nhật tất cả các địa chỉ khác thành không mặc định
+      await databaseService.deliveryInfos.updateMany(
+        {
+          user_id: new ObjectId(user_id),
+          is_default: true
+        },
+        {
+          $set: { is_default: false }
+        }
+      )
     }
+
     const deliveryInfo = await databaseService.deliveryInfos.insertOne({
       user_id: new ObjectId(user_id),
-      province_city,
-      district,
-      ward,
-      street,
+      personal_detail,
+      shipping_address,
       is_default
     })
 
     return {
       _id: deliveryInfo.insertedId,
-      province_city,
-      district,
-      ward,
-      street,
+      personal_detail,
+      shipping_address,
       is_default
     }
   }
@@ -66,19 +80,22 @@ class DeliveryInfoService {
         status: HTTP_STATUS.NOT_FOUND
       })
     }
+
     //check default delivery info
     if (updateBody.is_default) {
-      const deliveryDefault = await databaseService.deliveryInfos.findOne({
-        user_id: new ObjectId(user_id),
-        is_default: true
-      })
-      if (deliveryDefault) {
-        throw new ErrorWithStatus({
-          message: DELIVERY_INFO_MESSAGES.USER_ALREADY_HAVE_DEFAULT_DELIVERY_INFO,
-          status: HTTP_STATUS.BAD_REQUEST
-        })
-      }
+      // Nếu đang cập nhật địa chỉ thành mặc định, cập nhật tất cả các địa chỉ khác thành không mặc định
+      await databaseService.deliveryInfos.updateMany(
+        {
+          user_id: new ObjectId(user_id),
+          _id: { $ne: new ObjectId(delivery_id) }, //not equal delivery_id
+          is_default: true
+        },
+        {
+          $set: { is_default: false }
+        }
+      )
     }
+
     const deliveryInfo = await databaseService.deliveryInfos.updateOne(
       { _id: new ObjectId(delivery_id), user_id: new ObjectId(user_id) },
       { $set: updateBody }

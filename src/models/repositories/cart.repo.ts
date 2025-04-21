@@ -21,7 +21,7 @@ class CartRepository {
     const productWithObjectId = {
       ...product,
       product_id: new ObjectId(product.product_id),
-      shop_id: new ObjectId(product.shop_id)
+      shopId: new ObjectId(product.shopId)
     }
 
     const query = { cart_userId: new ObjectId(userId), cart_status: CartStatus.Active }
@@ -46,8 +46,8 @@ class CartRepository {
     const foundProduct = await databaseService.products.findOne({ _id: new ObjectId(product_id) })
     if (!foundProduct) {
       throw new ErrorWithStatus({
-        message: 'Product not found',
-        status: 404
+        message: PRODUCTS_MESSAGES.PRODUCT_NOT_FOUND,
+        status: HTTP_STATUS.NOT_FOUND
       })
     }
     // Get current cart to check existing quantity
@@ -90,7 +90,7 @@ class CartRepository {
     const productWithObjectId = {
       ...product,
       product_id: new ObjectId(product.product_id),
-      shop_id: new ObjectId(product.shop_id)
+      shopId: new ObjectId(product.shopId)
     }
 
     if (existingProduct) {
@@ -120,7 +120,10 @@ class CartRepository {
         },
         {
           $push: {
-            cart_products: productWithObjectId
+            cart_products: {
+              ...productWithObjectId,
+              product_thumb: foundProduct.product_thumb
+            }
           },
           $inc: {
             cart_count_product: product_quantity,

@@ -5,8 +5,8 @@ export interface ICartProduct {
   product_id: ObjectId
   product_quantity?: number
   product_price?: number
-  product_name?: string
-  product_shopId?: ObjectId
+  name?: string
+  shopId?: ObjectId
   product_thumb?: string
 }
 export interface ICartType {

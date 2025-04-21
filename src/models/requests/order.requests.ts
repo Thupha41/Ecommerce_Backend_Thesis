@@ -14,11 +14,18 @@ export interface orderByUserRequestBody {
   }[]
   cartId: string
   userId: string
-  user_address: {
-    province_city: string
-    district: string
-    ward: string
-    street: string
+  delivery_info: {
+    personal_detail: {
+      name: string
+      phone: string
+      email: string
+    }
+    shipping_address: {
+      province_city: string
+      district: string
+      ward: string
+      street: string
+    }
   }
   user_payment: {
     payment_method: string

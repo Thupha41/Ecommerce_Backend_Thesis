@@ -56,6 +56,7 @@ export const envConfig = {
   dbSouvenirsCollection: process.env.DB_SOUVENIRS_COLLECTION as string,
   dbKitchenwareCollection: process.env.DB_KITCHENWARE_COLLECTION as string,
   dbInstrumentsCollection: process.env.DB_INSTRUMENTS_COLLECTION as string,
+
   // jwt authentication
 
   jwtSecretAccessToken: process.env.JWT_SECRET_ACCESS_TOKEN as string,
@@ -80,6 +81,10 @@ export const envConfig = {
   awsAccessKeyId: process.env.AWS_ACCESS_KEY_ID as string,
   awsSecretAccessKey: process.env.AWS_SECRET_ACCESS_KEY as string,
   awsRegion: process.env.AWS_REGION as string,
-  s3BucketName: process.env.S3_BUCKET_NAME as string
+  s3BucketName: process.env.S3_BUCKET_NAME as string,
 
+  // Redis configuration
+  redisHost: process.env.REDIS_HOST as string,
+  redisPort: process.env.REDIS_PORT as string,
+  redisUrl: process.env.REDIS_URL as string
 }

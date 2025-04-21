@@ -196,7 +196,7 @@ class CartService {
     const cart = await databaseService.carts.findOne({
       cart_userId: new ObjectId(userId),
       cart_status: CartStatus.Active,
-      'cart_products.product_id': productId
+      'cart_products.product_id': new ObjectId(productId)
     })
 
     if (!cart) {
@@ -230,12 +230,12 @@ class CartService {
     const cart = await databaseService.carts.findOne({
       cart_userId: new ObjectId(userId),
       cart_status: CartStatus.Active,
-      'cart_products.product_id': productId
+      'cart_products.product_id': new ObjectId(productId)
     })
 
     if (!cart) {
       throw new ErrorWithStatus({
-        message: 'Product not in cart',
+        message: CARTS_MESSAGES.PRODUCT_NOT_IN_CART,
         status: HTTP_STATUS.NOT_FOUND
       })
     }
