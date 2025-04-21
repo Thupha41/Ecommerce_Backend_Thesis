@@ -75,9 +75,8 @@ export const getOneOrderByUser = async (req: Request, res: Response, next: NextF
 export const placeOrder = async (req: Request, res: Response, next: NextFunction) => {
   const user = req.decoded_authorization as TokenPayload
   const user_id = user.user_id
-  const result = await orderService.orderByUser({
+  const result = await orderService.orderByUser(user_id.toString(), {
     ...req.body,
-    userId: user_id.toString()
   })
   res.json({
     message: ORDERS_MESSAGES.CHECKOUT_REVIEW_ORDER_SUCCESS,

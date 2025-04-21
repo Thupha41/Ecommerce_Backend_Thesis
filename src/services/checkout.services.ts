@@ -1,12 +1,11 @@
 import { cartRepository } from '~/models/repositories/cart.repo'
-import { productRepository } from '~/models/repositories/products.repo'
 import discountService from '~/services/discounts.services'
 import databaseService from './database.services'
 import { ErrorWithStatus } from '~/models/Errors'
 import HTTP_STATUS from '~/constants/httpStatus'
 import { CheckoutReviewReqBody } from '~/models/requests/checkout.requests'
 import DeliveryInfoService from './deliveryInfo.services'
-import { USERS_MESSAGES, CARTS_MESSAGES, PRODUCTS_MESSAGES } from '~/constants/messages'
+import { USERS_MESSAGES, CARTS_MESSAGES, DELIVERY_INFO_MESSAGES } from '~/constants/messages'
 import { ObjectId } from 'mongodb'
 import { orderRepository } from '~/models/repositories/order.repo'
 class CheckoutService {
@@ -26,7 +25,8 @@ class CheckoutService {
                     item_products: {
                         price,
                         quantity,
-                        productId
+                        productId,
+                        product_thumb
                     }
                 },
                 {
@@ -43,25 +43,46 @@ class CheckoutService {
                     item_products: {
                         price,
                         quantity,
-                        productId
+                        productId,
+                        product_thumb
                     }
                 },
             ]
         }
 
     */
+
+  /**
+   * Kiểm tra đơn hàng trước khi thanh toán
+   * @param userId - ID của người dùng
+   * @param cartId - ID của giỏ hàng
+   * @param shop_order_ids - Danh sách các shop và sản phẩm trong giỏ hàng
+   * @param orderStatus - Trạng thái đơn hàng
+   * @param orderTotal - Tổng tiền đơn hàng
+   * @param orderItems - Danh sách sản phẩm trong đơn hàng
+   * @param orderAddress - Địa chỉ giao hàng
+   * @returns 
+   */
+  /*
+  Tất cả các step đều được thực hiện trong service này
+  - Kiểm tra user
+  - Kiểm tra cart
+  - Kiểm tra đơn hàng
+  - Tính toán tổng tiền
+  - Tính toán tổng tiền sau khi giảm giá
+  - Tính toán tổng tiền sau khi tính phí vận chuyển
+  - Tính toán tổng tiền sau khi thanh toán
+  */
   async checkoutReview({
     userId,
     cartId,
     shop_order_ids,
     orderStatus,
     orderTotal,
-    orderItems,
-    orderAddress
   }: CheckoutReviewReqBody) {
-    //check user
+    //STEP 1: check user
     const user = await databaseService.users.findOne({
-      user_id: new ObjectId(userId)
+      _id: new ObjectId(userId)
     })
     if (!user) {
       throw new ErrorWithStatus({
@@ -69,7 +90,7 @@ class CheckoutService {
         status: HTTP_STATUS.NOT_FOUND
       })
     }
-    //check cart id exist
+    //STEP 2: check cart id exist
     const foundCart = await cartRepository.findCartById(cartId)
     if (!foundCart) {
       throw new ErrorWithStatus({
@@ -78,31 +99,34 @@ class CheckoutService {
       })
     }
 
+    //STEP 3: init checkout order
     const checkout_order = {
       totalPrice: 0, //tong tien hang
       feeShip: 0,
       totalDiscount: 0,
       totalCheckout: 0 //tong thanh toan
     }
-    //check item order exist in cart
-    const checkItemOrderExistInCart = await orderRepository.checkItemOrderExistInCart(shop_order_ids, cartId)
-    console.log('>>> checkItemOrderExistInCart', checkItemOrderExistInCart)
+
+    //check item order exist in cart and get validated products with complete information
+    const validatedOrderItems = await orderRepository.checkItemOrderExistInCart(shop_order_ids, cartId)
+    console.log('>>> validatedOrderItems', validatedOrderItems)
+
+    // Update shop_order_ids with validated items that include product_thumb
+    const updatedShopOrderIds = validatedOrderItems.map((shop, index) => {
+      return {
+        ...shop_order_ids[index],
+        item_products: shop.item_products
+      }
+    })
+
+    //STEP 4: tinh tong tien bill
     const shop_order_ids_new = []
     //tinh tong tien bill
-    for (let i = 0; i < shop_order_ids.length; i++) {
-      const { shopId, shop_discounts = [], item_products = [] } = shop_order_ids[i]
-      //check product available
-      const checkProductServer = await productRepository.checkProductByServer(item_products)
-      console.log('>>> checkProductServer', checkProductServer)
-      if (!checkProductServer[0]) {
-        throw new ErrorWithStatus({
-          message: PRODUCTS_MESSAGES.PRODUCT_NOT_FOUND,
-          status: HTTP_STATUS.BAD_REQUEST
-        })
-      }
+    for (let i = 0; i < updatedShopOrderIds.length; i++) {
+      const { shopId, shop_discounts = [], item_products = [] } = updatedShopOrderIds[i]
 
-      //tong tien don hang
-      const totalProductsPrice = checkProductServer.reduce((total, current) => {
+      //tong tien don hang - we can use the validated products directly since price was verified in checkItemOrderExistInCart
+      const totalProductsPrice = item_products.reduce((total, current) => {
         return total + (current?.price || 0) * (current?.quantity || 0)
       }, 0)
 
@@ -114,12 +138,13 @@ class CheckoutService {
         shop_discounts,
         priceRaw: totalProductsPrice, //tien truoc khi giam gia
         priceApplyDiscount: totalProductsPrice, //tien sau khi giam gia
-        item_products: checkProductServer
+        item_products
       }
-      //neu shop_discounts ton tai  > 0 thi check xem co hop le hay khong
+
+      //STEP 5: neu shop_discounts ton tai  > 0 thi check xem co hop le hay khong
       if (shop_discounts.length > 0) {
         const { totalPrice = 0, discount_amount = 0 } = await discountService.getDiscountAmount({
-          products: checkProductServer.filter(Boolean) as any,
+          products: item_products.filter(Boolean) as any,
           userId,
           shopId,
           code: shop_discounts[0].discount_code
@@ -130,38 +155,46 @@ class CheckoutService {
           checkout_order_detail.priceApplyDiscount = totalProductsPrice - discount_amount
         }
       }
-      //tong thanh toan cuoi cung
+      //STEP 6: tong thanh toan cuoi cung
       checkout_order.totalCheckout += checkout_order_detail.priceApplyDiscount
       shop_order_ids_new.push(checkout_order_detail)
-    }
-    return {
-      shop_order_ids,
-      shop_order_ids_new,
-      checkout_order,
-      orderAddress,
-      orderStatus,
-      orderTotal,
-      orderItems
+
+      //STEP 7: Kiểm tra thông tin giao hàng
+      const delivery_info = await this.checkOutDeliveryInformation(userId)
+      const shipping_information = {
+        personal_detail: {
+          name: delivery_info.personal_detail.name,
+          phone: delivery_info.personal_detail.phone,
+        },
+        shipping_address: delivery_info.shipping_address,
+      }
+
+      return {
+        shop_order_ids: updatedShopOrderIds,
+        shop_order_ids_new,
+        checkout_order,
+        shipping_information: shipping_information,
+        orderStatus,
+        orderTotal,
+      }
     }
   }
-
   async checkOutDeliveryInformation(user_id: string) {
-    const personal_detail = await databaseService.users.findOne({
-      user_id: new ObjectId(user_id)
+    const user = await databaseService.users.findOne({
+      _id: new ObjectId(user_id)
     })
-    if (!personal_detail) {
+    if (!user) {
       throw new ErrorWithStatus({
         message: USERS_MESSAGES.USER_NOT_FOUND,
         status: HTTP_STATUS.NOT_FOUND
       })
     }
+
     const shipping_address = await DeliveryInfoService.getDeliveryDefault(user_id)
-    return {
-      personal_detail,
-      shipping_address
-    }
+    return shipping_address
   }
 }
+
 
 const checkoutService = new CheckoutService()
 export default checkoutService

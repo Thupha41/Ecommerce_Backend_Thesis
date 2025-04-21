@@ -40,7 +40,10 @@ class DatabaseService {
       throw error
     }
   }
-
+  // Method to get the MongoDB client for transactions
+  getMongoClient(): MongoClient {
+    return this.client
+  }
   get users(): Collection<User> {
     return this.db.collection(envConfig.dbUsersCollection)
   }
@@ -84,11 +87,6 @@ class DatabaseService {
   get deliveryInfos(): Collection<DeliveryInfo> {
     return this.db.collection(envConfig.dbDeliveryInfosCollection)
   }
-
-  // Method to get the MongoDB client for transactions
-  getMongoClient(): MongoClient {
-    return this.client
-
   get stationery(): Collection<Stationery> {
     return this.db.collection(envConfig.dbStationeryCollection)
   }

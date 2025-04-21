@@ -2,24 +2,24 @@ import { ObjectId } from 'mongodb'
 import databaseService from '~/services/database.services'
 import { ErrorWithStatus } from '~/models/Errors'
 import HTTP_STATUS from '~/constants/httpStatus'
-import { CARTS_MESSAGES } from '~/constants/messages'
-import { IShopOrderIds } from '~/models/requests/checkout.requests'
-import { ICartItemProduct } from '~/models/requests/carts.requests'
+import { CARTS_MESSAGES, PRODUCTS_MESSAGES } from '~/constants/messages'
+import { IShopOrderIds, ICheckoutProduct } from '~/models/requests/checkout.requests'
+import { productRepository } from './products.repo'
+
 class OrderRepository {
   private carts = databaseService.carts
 
   /**
-   * Kiểm tra các sản phẩm trong checkout có tồn tại trong giỏ hàng không
+   * Kiểm tra các sản phẩm trong checkout có tồn tại trong giỏ hàng không và lấy thông tin sản phẩm từ database
    * @param shop_order_ids Danh sách sản phẩm theo shop
    * @param cartId ID giỏ hàng
-   * @returns Danh sách sản phẩm hợp lệ
+   * @returns Danh sách sản phẩm hợp lệ với đầy đủ thông tin
    */
   async checkItemOrderExistInCart(shop_order_ids: IShopOrderIds[], cartId: string) {
     // Lấy giỏ hàng hiện tại
     const foundCart = await this.carts.findOne({
       _id: new ObjectId(cartId)
     })
-
     if (!foundCart) {
       throw new ErrorWithStatus({
         message: CARTS_MESSAGES.CART_NOT_FOUND,
@@ -38,9 +38,9 @@ class OrderRepository {
             // Tìm kiếm sản phẩm trong giỏ hàng
             const cartItem = foundCart.cart_products.find(
               (product) =>
-                product.product_id.toString() === item.productId && product.product_shopId?.toString() === shopId
+                product.product_id.toString() === item.productId && product.shopId?.toString() === shopId
             )
-
+            console.log('>>> cartItem', cartItem)
             if (!cartItem) {
               throw new ErrorWithStatus({
                 message: `Product ${item.productId} is not in your cart`,
@@ -56,26 +56,41 @@ class OrderRepository {
               })
             }
 
-            if ((cartItem.product_price || 0) !== item.price) {
+            // Use productRepository.checkProductByServer to get product info
+            const productInfo = await productRepository.checkProductByServer([{
+              productId: item.productId,
+              quantity: item.quantity,
+              price: item.price
+            }])
+
+            if (!productInfo[0]) {
+              throw new ErrorWithStatus({
+                message: PRODUCTS_MESSAGES.PRODUCT_NOT_FOUND,
+                status: HTTP_STATUS.BAD_REQUEST
+              })
+            }
+
+            // Kiểm tra giá
+            if (productInfo[0].price !== item.price) {
               throw new ErrorWithStatus({
                 message: `Price of product ${item.productId} has changed`,
                 status: HTTP_STATUS.BAD_REQUEST
               })
             }
-            return {
-              ...item,
-              name: cartItem.product_name || ''
-            }
+
+            return productInfo[0]
           })
         )
 
         return {
-          ...shop,
+          shopId,
+          shop_discounts: shop.shop_discounts || [],
           item_products: validatedProducts
         }
       })
     )
   }
+
 
   /**
    * Kiểm tra tồn kho của sản phẩm

@@ -2,7 +2,7 @@ export interface ICartItemProduct {
   product_id: string
   product_quantity: number
   product_price?: number
-  shop_id?: string
+  shopId?: string
   name?: string
   product_thumb?: string
 }

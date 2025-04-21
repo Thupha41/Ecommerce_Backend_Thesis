@@ -17,6 +17,7 @@ interface UserType {
   user_role?: ObjectId
   code?: string
   code_expired?: Date
+  phone_number?: string
 }
 
 export default class User {
@@ -34,7 +35,7 @@ export default class User {
   cover_photo: string // optional
   code: string
   code_expired: Date
-
+  phone_number: string
   constructor(user: UserType) {
     const date = new Date()
     this._id = user._id
@@ -51,5 +52,6 @@ export default class User {
     this.cover_photo = user.cover_photo || ''
     this.code = user.code || ''
     this.code_expired = user.code_expired || date
+    this.phone_number = user.phone_number || ''
   }
 }

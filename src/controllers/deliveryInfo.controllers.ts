@@ -39,7 +39,7 @@ export const getAllDeliveryInfoByUserId = async (req: Request, res: Response, ne
   const user_id = user.user_id
   const result = await deliveryInfoService.getAllDeliveryInfoByUserId(user_id.toString())
   res.json({
-    message: DELIVERY_INFO_MESSAGES.GET_ALL_DELIVERY_INFO_SUCCESS,
+    message: `Get all delivery info by user successfully`,
     result
   })
   return

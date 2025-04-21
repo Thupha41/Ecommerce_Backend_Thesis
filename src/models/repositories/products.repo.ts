@@ -229,7 +229,9 @@ class ProductRepository {
           return {
             price: foundProduct.product_price,
             quantity: product.quantity,
-            productId: product.productId
+            productId: product.productId,
+            product_thumb: foundProduct.product_thumb,
+            name: foundProduct.product_name
           }
         }
         return null

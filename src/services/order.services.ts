@@ -8,21 +8,49 @@ import { Sort } from 'mongodb'
 import { SortDirection } from 'mongodb'
 import { ObjectId } from 'mongodb'
 import { OrderStatus, CartStatus } from '~/constants/enums'
-import { ORDERS_MESSAGES, CARTS_MESSAGES } from '~/constants/messages'
+import { ORDERS_MESSAGES, CARTS_MESSAGES, USERS_MESSAGES } from '~/constants/messages'
 import { orderByUserRequestBody } from '~/models/requests/order.requests'
 
 class OrderService {
   //order
-  static async orderByUser({ shop_order_ids, cartId, userId, user_address, user_payment }: orderByUserRequestBody) {
-    const { shop_order_ids_new, checkout_order } = await checkoutService.checkoutReview({
+  static async orderByUser(userId: string, { shop_order_ids, cartId, delivery_info, user_payment }: orderByUserRequestBody) {
+    //check user exist
+    const user = await databaseService.users.findOne({
+      _id: new ObjectId(userId)
+    })
+    if (!user) {
+      throw new ErrorWithStatus({
+        message: USERS_MESSAGES.USER_NOT_FOUND,
+        status: HTTP_STATUS.NOT_FOUND
+      })
+    }
+
+    const checkoutReviewResult = await checkoutService.checkoutReview({
       userId,
       cartId,
       shop_order_ids
     })
+    // Kiểm tra và lấy dữ liệu từ kết quả
+    if (!checkoutReviewResult) {
+      throw new ErrorWithStatus({
+        message: 'Failed to process checkout review',
+        status: HTTP_STATUS.INTERNAL_SERVER_ERROR
+      });
+    }
+
+    const { shop_order_ids_new, checkout_order } = checkoutReviewResult;
 
     //check mot lan nua xem vuot ton kho hay khong
     //get new array product
-    const products = shop_order_ids_new.flatMap((order) => order.item_products).filter(Boolean) as {
+    const products = shop_order_ids_new.flatMap((order: {
+      shopId: string;
+      shop_discounts: any[];
+      item_products: {
+        productId: string;
+        quantity: number;
+        price: number;
+      }[];
+    }) => order.item_products).filter(Boolean) as {
       productId: string
       quantity: number
       price: number
@@ -50,7 +78,7 @@ class OrderService {
     const newOrder = await databaseService.orders.insertOne({
       order_userId: new ObjectId(userId),
       order_checkout: checkout_order,
-      order_shipping: user_address,
+      order_shipping: delivery_info,
       order_payment: user_payment,
       order_products: shop_order_ids_new,
       order_status: OrderStatus.Pending,
@@ -115,6 +143,10 @@ class OrderService {
           order_status: OrderStatus.Pending,
           order_total: checkout_order.totalCheckout,
           order_items_count: products.length,
+          order_products: shop_order_ids_new,
+          order_checkout: checkout_order,
+          order_shipping: delivery_info,
+          order_payment: user_payment,
           success: true,
           message: 'Order created successfully'
         }

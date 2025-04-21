@@ -10,6 +10,7 @@ export interface IShopOrderIds {
     quantity: number
     price: number
     productId: string
+    // product_thumb: string
   }[]
 }
 export interface CheckoutReviewReqBody {
@@ -17,18 +18,20 @@ export interface CheckoutReviewReqBody {
   cartId: string
   shop_order_ids: IShopOrderIds[]
   orderId?: string
-  orderAddress?: {
-    province_city: string
-    district: string
-    ward: string
-    street: string
+  shipping_information?: {
+    personal_detail?: {
+      name: string
+      phone: string
+    }
+    shipping_address?: {
+      province_city: string
+      district: string
+      ward: string
+      street: string
+    }
   }
   orderStatus?: OrderStatus
   orderTotal?: number
-  orderItems?: {
-    productId: string
-    quantity: number
-  }[]
 }
 
 export interface IAddToStockRequestBody {
