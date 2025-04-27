@@ -14,9 +14,20 @@ import sellersRouter from './sellers.routes'
 import deliveryInfoRouter from './deliveryInfo.routes'
 import inventoryRouter from './inventories.routes'
 import ordersRouter from './orders.routes'
+import resourcesRouter from './resources.routes'
+import rolesRouter from './roles.routes'
+import shopRouter from './shops.routes'
+import { checkUserPermission, checkServicesJWT } from "~/middlewares/rbac.middlewares"
+import { accessTokenValidator } from '~/middlewares/users.middlewares'
 const router = Router()
 
 const initApiRoute = (app: Application) => {
+  // Áp dụng accessTokenValidator cho tất cả các routes trừ những path nằm trong nonSecurePaths
+  router.use(accessTokenValidator)
+
+  // Áp dụng checkUserPermission cho tất cả các routes
+  router.use(checkUserPermission)
+
   //users
   router.use('/users', usersRouter)
   //medias
@@ -47,6 +58,14 @@ const initApiRoute = (app: Application) => {
   router.use('/inventories', inventoryRouter)
   //orders
   router.use('/orders', ordersRouter)
+  //resources
+  router.use('/resources', resourcesRouter)
+  //roles
+  router.use('/roles', rolesRouter)
+  //shops
+  router.use('/shops', shopRouter)
+  //check services JWT
+  router.use('/verify-services-jwt', checkServicesJWT)
   //api/v1 router
   return app.use('/api/v1', router)
 }

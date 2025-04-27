@@ -42,5 +42,5 @@ ordersRouter.post('/checkout/delivery-information', wrapRequestHandler(checkOutD
  * Path: /orders/place-order
  * Method: POST
  */
-ordersRouter.post('/place-order', wrapRequestHandler(placeOrder))
+ordersRouter.post('/', wrapRequestHandler(placeOrder))
 export default ordersRouter

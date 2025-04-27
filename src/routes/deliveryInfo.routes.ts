@@ -9,7 +9,11 @@ import {
   getDeliveryDefault
 } from '~/controllers/deliveryInfo.controllers'
 import { accessTokenValidator } from '~/middlewares/users.middlewares'
-import { deliveryInfoValidator, isDeliveryInfoExist, validateDeliveryInfoStructure } from '~/middlewares/deliveryInfo.middlewares'
+import {
+  deliveryInfoValidator,
+  isDeliveryInfoExist,
+  validateDeliveryInfoStructure
+} from '~/middlewares/deliveryInfo.middlewares'
 import { wrapRequestHandler } from '~/utils/handlers'
 const deliveryInfoRouter = Router()
 
@@ -20,7 +24,12 @@ deliveryInfoRouter.use(accessTokenValidator)
  * method: POST
  * Body: {personal_detail: {name: string, phone: string}, shipping_address: {province_city: string, district: string, ward: string, street: string}, is_default: boolean}
  */
-deliveryInfoRouter.post('/', validateDeliveryInfoStructure, deliveryInfoValidator, wrapRequestHandler(createDeliveryInfo))
+deliveryInfoRouter.post(
+  '/',
+  validateDeliveryInfoStructure,
+  deliveryInfoValidator,
+  wrapRequestHandler(createDeliveryInfo)
+)
 /**
  * Description: Update a delivery info
  * Path: /:delivery_id
@@ -53,7 +62,6 @@ deliveryInfoRouter.get('/:delivery_id', isDeliveryInfoExist, wrapRequestHandler(
  */
 deliveryInfoRouter.post('/:user_id', wrapRequestHandler(getAllDeliveryInfoByUserId))
 
-
 /**
  * Description: Get all delivery info
  * Path: /
@@ -66,6 +74,5 @@ deliveryInfoRouter.get('/', wrapRequestHandler(getAllDeliveryInfo))
  * method: DELETE
  */
 deliveryInfoRouter.delete('/:delivery_id', isDeliveryInfoExist, wrapRequestHandler(deleteDeliveryInfo))
-
 
 export default deliveryInfoRouter

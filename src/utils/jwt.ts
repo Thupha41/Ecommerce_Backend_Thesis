@@ -1,5 +1,6 @@
 import jwt, { SignOptions } from 'jsonwebtoken'
 import { TokenPayload } from '~/models/requests/users.requests'
+import { Request } from 'express'
 
 export const signToken = ({
   payload,
@@ -32,3 +33,13 @@ export const verifyToken = ({ token, secretOrPublicKey }: { token: string; secre
     })
   })
 }
+
+export const extractToken = (req: Request) => {
+  if (
+    req.headers.authorization &&
+    req.headers.authorization.split(" ")[0] === "Bearer"
+  ) {
+    return req.headers.authorization.split(" ")[1];
+  }
+  return null;
+};

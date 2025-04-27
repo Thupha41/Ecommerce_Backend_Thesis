@@ -24,7 +24,6 @@ import { envConfig } from '~/constants/config'
 import { uploadFileToS3 } from '~/utils/s3'
 import { CompleteMultipartUploadCommandOutput } from '@aws-sdk/client-s3'
 
-
 export const createProductController = async (
   req: Request<ParamsDictionary, any, CreateProductReqBody>,
   res: Response,
@@ -168,12 +167,7 @@ export const getProductDetailController = async (
   })
 }
 
-export const getProductDetailByNameController = async (
-  req: Request,
-  res: Response,
-  next: NextFunction
-) => {
-
+export const getProductDetailByNameController = async (req: Request, res: Response, next: NextFunction) => {
   const product_name = req.query.product_name as string
 
   if (!product_name) {
@@ -197,7 +191,7 @@ export const getProductDetailByNameController = async (
     message: PRODUCTS_MESSAGES.GET_PRODUCT_DETAIL_SUCCESS,
     result
   })
-  return;
+  return
 }
 
 export const updateProductController = async (req: Request<ProductIdReqParams>, res: Response, next: NextFunction) => {
@@ -273,7 +267,6 @@ export const updateProductThumbController = async (
     type: MediaType.Image
   }
 
-
   // Update only the product_thumb field
   const result = await databaseService.products.updateOne(
     {
@@ -297,17 +290,13 @@ export const updateProductThumbController = async (
   })
 }
 
-export const getTopProductsController = async (
-  req: Request,
-  res: Response,
-  next: NextFunction
-) => {
+export const getTopProductsController = async (req: Request, res: Response, next: NextFunction) => {
   const queryParams: FindAllProductsParams = {
     limit: 50,
     sort: 'product_ratingsAverage',
     page: 1,
     filter: {
-      isPublished: true,
+      isPublished: true
       // product_ratingsAverage: { $eq: 4.5 }
     }
   }

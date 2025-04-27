@@ -16,7 +16,7 @@ import { UserVerifyStatus } from '~/constants/enums'
 import { REGEX_USERNAME } from '~/constants/regex'
 import { verifyAccessToken } from '~/utils/commons'
 import { envConfig } from '~/constants/config'
-
+import { nonSecurePaths } from '~/constants/nonSecurePath'
 const passwordSchema: ParamSchema = {
   notEmpty: {
     errorMessage: USERS_MESSAGES.PASSWORD_IS_REQUIRED
@@ -267,10 +267,13 @@ export const accessTokenValidator = validate(
       Authorization: {
         custom: {
           options: async (value: string, { req }) => {
+            if (nonSecurePaths.includes(req.path as typeof nonSecurePaths[number])) {
+              return true
+            }
             const access_token = (value || '').split(' ')[1]
             const decoded = await verifyAccessToken(access_token, req as Request)
-            console.log('>>> check decoded', decoded)
-            ;(req as Request).decoded_authorization = decoded
+            console.log('>>> check decoded', JSON.stringify(decoded, null, 2))
+              ; (req as Request).decoded_authorization = decoded
           }
         }
       }
@@ -303,7 +306,7 @@ export const refreshTokenValidator = validate(
                   status: HTTP_STATUS.UNAUTHORIZED
                 })
               }
-              ;(req as Request).decoded_refresh_token = decoded_refresh_token
+              ; (req as Request).decoded_refresh_token = decoded_refresh_token
             } catch (error) {
               if (error instanceof JsonWebTokenError) {
                 throw new ErrorWithStatus({

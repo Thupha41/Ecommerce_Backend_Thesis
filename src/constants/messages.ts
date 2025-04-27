@@ -205,7 +205,8 @@ export const CARTS_MESSAGES = {
   GET_CART_SUCCESS: 'Get cart successfully',
   CART_NOT_FOUND: 'Cart not found',
   INVALID_CART_ITEM: 'Invalid cart item',
-  PRODUCT_NOT_IN_CART: 'Product not in cart'
+  PRODUCT_NOT_IN_CART: 'Product not in cart',
+  INVALID_CART_ID: 'Invalid cart id'
 } as const
 
 export const SELLER_MESSAGES = {
@@ -279,4 +280,96 @@ export const INVENTORY_MESSAGES = {
   STOCK_IS_REQUIRED: 'Stock is required',
   STOCK_MUST_BE_A_NUMBER: 'Stock must be a number',
   STOCK_MUST_BE_GREATER_THAN_0: 'Stock must be greater than 0'
+} as const
+
+export const ROLES_MESSAGES = {
+  ROLE_NOT_FOUND: 'Role not found',
+  INVALID_ROLE_ID: 'Invalid role id',
+  ROLE_ALREADY_EXISTS: 'Role already exists',
+  CREATE_ROLE_SUCCESS: 'Create role successfully',
+  UPDATE_ROLE_SUCCESS: 'Update role successfully',
+  DELETE_ROLE_SUCCESS: 'Delete role successfully',
+  GET_ROLE_SUCCESS: 'Get role successfully',
+  GET_ALL_ROLES_SUCCESS: 'Get all roles successfully',
+  ROLE_NAME_IS_REQUIRED: 'Role name is required',
+  ROLE_NAME_MUST_BE_A_STRING: 'Role name must be a string',
+  ROLE_NAME_LENGTH_MUST_BE_FROM_1_TO_100: 'Role name length must be from 1 to 100',
+  ROLE_DESCRIPTION_IS_REQUIRED: 'Role description is required',
+  ROLE_DESCRIPTION_MUST_BE_A_STRING: 'Role description must be a string',
+  ROLE_DESCRIPTION_LENGTH_MUST_BE_FROM_1_TO_1000: 'Role description length must be from 1 to 1000',
+  ROLE_GRANT_MUST_BE_AN_ARRAY: 'Role grant must be an array',
+  ROLE_GRANT_RESOURCES_IS_REQUIRED: 'Role grant resources is required',
+  ROLE_GRANT_RESOURCES_MUST_BE_A_STRING: 'Role grant resources must be a string',
+  ROLE_GRANT_ACTIONS_IS_REQUIRED: 'Role grant actions is required',
+  ROLE_GRANT_ACTIONS_MUST_BE_A_STRING: 'Role grant actions must be a string',
+  ROLE_GRANT_ATTRIBUTES_IS_REQUIRED: 'Role grant attributes is required',
+  ROLE_GRANT_ATTRIBUTES_MUST_BE_A_STRING: 'Role grant attributes must be a string',
+  ROLE_GRANT_RESOURCES_MUST_BE_A_VALID_OBJECT_ID: 'Role grant resources must be a valid ObjectId',
+  ROLE_GRANT_ACTIONS_MUST_BE_A_VALID_STRING: 'Role grant actions must be a valid string',
+  ROLE_GRANT_ATTRIBUTES_MUST_BE_A_VALID_STRING: 'Role grant attributes must be a valid string',
+  ROLE_GRANT_IS_REQUIRED: 'Role grant is required',
+  ROLE_GRANT_RESOURCES_DOES_NOT_EXIST: 'Role grant resources does not exist',
+  GET_ROLE_LIST_RBAC_SUCCESS: 'Get role list RBAC successfully',
+
+} as const
+
+export const RESOURCES_MESSAGES = {
+  RESOURCE_NOT_FOUND: 'Resource not found',
+  INVALID_RESOURCE_ID: 'Invalid resource id',
+  RESOURCE_URL_IS_REQUIRED: 'Resource url is required',
+  RESOURCE_URL_MUST_BE_A_STRING: 'Resource url must be a string',
+  RESOURCE_URL_LENGTH_MUST_BE_FROM_1_TO_100: 'Resource url length must be from 1 to 100',
+  RESOURCE_DESCRIPTION_IS_REQUIRED: 'Resource description is required',
+  RESOURCE_DESCRIPTION_MUST_BE_A_STRING: 'Resource description must be a string',
+  RESOURCE_DESCRIPTION_LENGTH_MUST_BE_FROM_1_TO_1000: 'Resource description length must be from 1 to 1000',
+  CREATE_RESOURCE_SUCCESS: 'Create resource successfully',
+  UPDATE_RESOURCE_SUCCESS: 'Update resource successfully',
+  DELETE_RESOURCE_SUCCESS: 'Delete resource successfully',
+  GET_RESOURCE_SUCCESS: 'Get resource successfully',
+  GET_ALL_RESOURCES_SUCCESS: 'Get all resources successfully',
+  RESOURCE_ALREADY_EXISTS: 'Resource already exists',
+  RESOURCE_IN_USE: 'Resource is in use',
+} as const
+
+export const SHOP_MESSAGES = {
+  CREATE_SHOP_SUCCESS: 'Create shop successfully',
+  UPDATE_SHOP_SUCCESS: 'Update shop successfully',
+  DELETE_SHOP_SUCCESS: 'Delete shop successfully',
+  SHOP_NOT_FOUND: 'Shop not found',
+  GET_SHOP_SUCCESS: 'Get shop successfully',
+  GET_ALL_SHOPS_SUCCESS: 'Get all shops successfully',
+  SHOP_ALREADY_EXISTS: 'Shop already exists',
+  SHOP_IN_USE: 'Shop is in use',
+  SHOP_IS_NOT_ACTIVE: 'Shop is not active',
+  SHOP_IS_ACTIVE: 'Shop is active',
+  SHOP_EMAIL_IS_REQUIRED: 'Shop email is required',
+  SHOP_EMAIL_MUST_BE_A_STRING: 'Shop email must be a string',
+  SHOP_EMAIL_IS_INVALID: 'Shop email is invalid',
+  SHOP_EMAIL_ALREADY_EXISTS: 'Shop email already exists',
+  SHOP_HOTLINE_PHONE_IS_REQUIRED: 'Shop hotline phone is required',
+  SHOP_HOTLINE_PHONE_MUST_BE_A_STRING: 'Shop hotline phone must be a string',
+  SHOP_HOTLINE_PHONE_LENGTH_MUST_BE_FROM_1_TO_10: 'Shop hotline phone length must be from 1 to 10',
+  SHOP_HOTLINE_PHONE_IS_INVALID: 'Shop hotline phone is invalid',
+  SHOP_NAME_IS_REQUIRED: 'Shop name is required',
+  SHOP_NAME_MUST_BE_A_STRING: 'Shop name must be a string',
+  SHOP_NAME_LENGTH_MUST_BE_FROM_1_TO_100: 'Shop name length must be from 1 to 100',
+  SHOP_DESCRIPTION_IS_REQUIRED: 'Shop description is required',
+  SHOP_DESCRIPTION_MUST_BE_A_STRING: 'Shop description must be a string',
+  SHOP_DESCRIPTION_LENGTH_MUST_BE_FROM_1_TO_1000: 'Shop description length must be from 1 to 1000',
+  INVALID_SHOP_ID: 'Invalid shop id',
+  SHOP_LOGO_IS_REQUIRED: 'Shop logo is required',
+  SHOP_LOGO_MUST_BE_A_STRING: 'Shop logo must be a string',
+  SHOP_LOGO_IS_INVALID: 'Shop logo is invalid',
+  SHOP_BANNER_IS_REQUIRED: 'Shop banner is required',
+  SHOP_BANNER_MUST_BE_A_STRING: 'Shop banner must be a string',
+  SHOP_BANNER_IS_INVALID: 'Shop banner is invalid',
+  SHOP_NAME_ALREADY_EXISTS: 'Shop name already exists',
+  SHOP_HOTLINE_PHONE_ALREADY_EXISTS: 'Shop hotline phone already exists',
+} as const
+
+export const AUTH_MESSAGES = {
+  NO_PERMISSION: 'You do not have permission to access this resource',
+  NO_ROLES_ASSIGNED_TO_USER: 'No roles assigned to user',
+  NO_PERMISSION_TO_ACCESS_RESOURCE: 'You do not have permission to access this resource',
+  USER_NOT_AUTHENTICATED: 'User not authenticated'
 } as const

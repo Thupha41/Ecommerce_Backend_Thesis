@@ -519,7 +519,20 @@ class ProductFactory {
       sort,
       page,
       filter,
-      select: ['product_name', 'product_price', 'product_thumb', 'product_shop', 'product_attributes', 'product_slug', 'product_ratingsAverage', 'product_variations', 'isDraft', 'isPublished', '_id', 'product_type']
+      select: [
+        'product_name',
+        'product_price',
+        'product_thumb',
+        'product_shop',
+        'product_attributes',
+        'product_slug',
+        'product_ratingsAverage',
+        'product_variations',
+        'isDraft',
+        'isPublished',
+        '_id',
+        'product_type'
+      ]
     })
   }
 
@@ -545,7 +558,6 @@ class ProductFactory {
   static async unPublishProductByShop({ product_shop, product_id }: { product_shop: string; product_id: string }) {
     return await productRepository.unPublishProduct({ product_shop, product_id })
   }
-
 }
 
 export default ProductFactory

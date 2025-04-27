@@ -61,7 +61,7 @@ class CheckoutService {
    * @param orderTotal - Tổng tiền đơn hàng
    * @param orderItems - Danh sách sản phẩm trong đơn hàng
    * @param orderAddress - Địa chỉ giao hàng
-   * @returns 
+   * @returns
    */
   /*
   Tất cả các step đều được thực hiện trong service này
@@ -73,13 +73,7 @@ class CheckoutService {
   - Tính toán tổng tiền sau khi tính phí vận chuyển
   - Tính toán tổng tiền sau khi thanh toán
   */
-  async checkoutReview({
-    userId,
-    cartId,
-    shop_order_ids,
-    orderStatus,
-    orderTotal,
-  }: CheckoutReviewReqBody) {
+  async checkoutReview({ userId, cartId, shop_order_ids, orderStatus, orderTotal }: CheckoutReviewReqBody) {
     //STEP 1: check user
     const user = await databaseService.users.findOne({
       _id: new ObjectId(userId)
@@ -164,9 +158,9 @@ class CheckoutService {
       const shipping_information = {
         personal_detail: {
           name: delivery_info.personal_detail.name,
-          phone: delivery_info.personal_detail.phone,
+          phone: delivery_info.personal_detail.phone
         },
-        shipping_address: delivery_info.shipping_address,
+        shipping_address: delivery_info.shipping_address
       }
 
       return {
@@ -175,7 +169,7 @@ class CheckoutService {
         checkout_order,
         shipping_information: shipping_information,
         orderStatus,
-        orderTotal,
+        orderTotal
       }
     }
   }
@@ -194,7 +188,6 @@ class CheckoutService {
     return shipping_address
   }
 }
-
 
 const checkoutService = new CheckoutService()
 export default checkoutService

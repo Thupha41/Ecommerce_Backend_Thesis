@@ -13,7 +13,10 @@ import { orderByUserRequestBody } from '~/models/requests/order.requests'
 
 class OrderService {
   //order
-  static async orderByUser(userId: string, { shop_order_ids, cartId, delivery_info, user_payment }: orderByUserRequestBody) {
+  static async orderByUser(
+    userId: string,
+    { shop_order_ids, cartId, delivery_info, user_payment }: orderByUserRequestBody
+  ) {
     //check user exist
     const user = await databaseService.users.findOne({
       _id: new ObjectId(userId)
@@ -35,22 +38,26 @@ class OrderService {
       throw new ErrorWithStatus({
         message: 'Failed to process checkout review',
         status: HTTP_STATUS.INTERNAL_SERVER_ERROR
-      });
+      })
     }
 
-    const { shop_order_ids_new, checkout_order } = checkoutReviewResult;
+    const { shop_order_ids_new, checkout_order } = checkoutReviewResult
 
     //check mot lan nua xem vuot ton kho hay khong
     //get new array product
-    const products = shop_order_ids_new.flatMap((order: {
-      shopId: string;
-      shop_discounts: any[];
-      item_products: {
-        productId: string;
-        quantity: number;
-        price: number;
-      }[];
-    }) => order.item_products).filter(Boolean) as {
+    const products = shop_order_ids_new
+      .flatMap(
+        (order: {
+          shopId: string
+          shop_discounts: any[]
+          item_products: {
+            productId: string
+            quantity: number
+            price: number
+          }[]
+        }) => order.item_products
+      )
+      .filter(Boolean) as {
       productId: string
       quantity: number
       price: number

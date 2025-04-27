@@ -20,8 +20,13 @@ class DeliveryInfoService {
       })
     }
 
-    if (!shipping_address || !shipping_address.province_city || !shipping_address.district ||
-      !shipping_address.ward || !shipping_address.street) {
+    if (
+      !shipping_address ||
+      !shipping_address.province_city ||
+      !shipping_address.district ||
+      !shipping_address.ward ||
+      !shipping_address.street
+    ) {
       throw new ErrorWithStatus({
         message: 'Shipping address details (province_city, district, ward, street) are required',
         status: HTTP_STATUS.BAD_REQUEST

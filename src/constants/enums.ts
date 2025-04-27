@@ -70,3 +70,15 @@ export enum OrderStatus {
   Delivered = 'delivered',
   Cancelled = 'cancelled'
 }
+
+export enum RoleStatus {
+  Active = 'active',
+  Inactive = 'inactive',
+  Pending = 'pending'
+}
+
+export enum ShopStatus {
+  Active = 'active',
+  Inactive = 'inactive',
+  Pending = 'pending'
+}
