@@ -16,13 +16,29 @@ import nodemailer from 'nodemailer'
 import * as handlebars from 'handlebars'
 import * as fs from 'fs'
 import * as path from 'path'
+import Role from '~/models/schemas/Role.schema'
+import { addResourcesUrlToRoles, addResourcesUrlToSingleRole } from '~/utils/role.utils'
+
 class UsersService {
-  private signAccessToken({ user_id, verify }: { user_id: string; verify: UserVerifyStatus }) {
+  private async signAccessToken({
+    user_id,
+    verify,
+    roles
+  }: {
+    user_id: string;
+    verify: UserVerifyStatus;
+    roles: Array<{
+      role_name: string;
+      role_description: string;
+      role_grant: Array<any>;
+    }>
+  }) {
     return signToken({
       payload: {
         user_id,
         token_type: TokenType.AccessToken,
-        verify
+        verify,
+        roles
       },
       privateKey: envConfig.jwtSecretAccessToken,
       options: {
@@ -30,13 +46,29 @@ class UsersService {
       }
     })
   }
-  private signRefreshToken({ user_id, verify, exp }: { user_id: string; verify: UserVerifyStatus; exp?: number }) {
+
+  private async signRefreshToken({
+    user_id,
+    verify,
+    roles,
+    exp
+  }: {
+    user_id: string;
+    verify: UserVerifyStatus;
+    roles: Array<{
+      role_name: string;
+      role_description: string;
+      role_grant: Array<any>;
+    }>;
+    exp?: number
+  }) {
     if (exp) {
       return signToken({
         payload: {
           user_id,
           token_type: TokenType.RefreshToken,
           verify,
+          roles,
           exp
         },
         privateKey: envConfig.jwtSecretRefreshToken
@@ -46,7 +78,8 @@ class UsersService {
       payload: {
         user_id,
         token_type: TokenType.RefreshToken,
-        verify
+        verify,
+        roles
       },
       privateKey: envConfig.jwtSecretRefreshToken,
       options: {
@@ -54,6 +87,7 @@ class UsersService {
       }
     })
   }
+
   private decodeRefreshToken(refresh_token: string) {
     return verifyToken({
       token: refresh_token,
@@ -61,8 +95,23 @@ class UsersService {
     })
   }
 
-  private signAccessAndRefreshToken({ user_id, verify }: { user_id: string; verify: UserVerifyStatus }) {
-    return Promise.all([this.signAccessToken({ user_id, verify }), this.signRefreshToken({ user_id, verify })])
+  private async signAccessAndRefreshToken({
+    user_id,
+    verify,
+    roles
+  }: {
+    user_id: string;
+    verify: UserVerifyStatus;
+    roles: Array<{
+      role_name: string;
+      role_description: string;
+      role_grant: Array<any>;
+    }>
+  }) {
+    return Promise.all([
+      this.signAccessToken({ user_id, verify, roles }),
+      this.signRefreshToken({ user_id, verify, roles })
+    ])
   }
 
   private signEmailVerifyToken({ user_id, verify }: { user_id: string; verify: UserVerifyStatus }) {
@@ -147,9 +196,20 @@ class UsersService {
     const user = await databaseService.users.findOne({ email: userInfo.email })
     // Nếu tồn tại thì cho login vào
     if (user) {
+      // Obtener información de roles
+      const roleIds = user.role_ids || []
+      const roleCursor = databaseService.roles.find({
+        _id: { $in: roleIds }
+      })
+      const roles = await roleCursor.toArray()
+
+      // Sử dụng utility để thêm resources_url vào roles
+      const formattedRoles = await addResourcesUrlToRoles(roles)
+
       const [access_token, refresh_token] = await this.signAccessAndRefreshToken({
         user_id: user._id.toString(),
-        verify: user.verify
+        verify: user.verify,
+        roles: formattedRoles
       })
 
       await databaseService.refreshTokens.insertOne(new RefreshToken({ user_id: user._id, token: refresh_token }))
@@ -176,6 +236,15 @@ class UsersService {
   //Register new user
   async register(payload: RegisterReqBody) {
     const user_id = new ObjectId()
+
+    // Find default role: Shopper
+    const shopperRole = await databaseService.roles.findOne({ role_name: 'shopper' })
+    if (!shopperRole) {
+      throw new ErrorWithStatus({
+        message: 'Default role "shopper" not found',
+        status: HTTP_STATUS.INTERNAL_SERVER_ERROR
+      })
+    }
 
     // Generate OTP (6-digit code) and expired_code
     const OTP = Math.floor(100000 + Math.random() * 900000)
@@ -213,36 +282,63 @@ class UsersService {
     console.log('>>> end sending email')
     console.log('info', info)
 
+    // Sử dụng utility để thêm resources_url vào một role duy nhất
+    const formattedRole = await addResourcesUrlToSingleRole(shopperRole)
+
     await databaseService.users.insertOne(
       new User({
         ...payload,
         _id: user_id,
         code: OTP.toString(),
         code_expired: expirationDate,
-        password: hashPassword(payload.password)
+        password: hashPassword(payload.password),
+        role_ids: [shopperRole._id]
       })
     )
+
     const [access_token, refresh_token] = await this.signAccessAndRefreshToken({
       user_id: user_id.toString(),
-      verify: UserVerifyStatus.Unverified
+      verify: UserVerifyStatus.Unverified,
+      roles: [formattedRole]
     })
+
     await databaseService.refreshTokens.insertOne(
       new RefreshToken({
         user_id: new ObjectId(user_id),
         token: refresh_token
       })
     )
+
     return {
       access_token,
-      refresh_token
+      refresh_token,
+      roles: [formattedRole]
     }
   }
 
   //Login user
   async login({ user_id, verify }: { user_id: string; verify: UserVerifyStatus }) {
+    const user = await databaseService.users.findOne({ _id: new ObjectId(user_id) })
+    if (!user) {
+      throw new ErrorWithStatus({
+        message: USERS_MESSAGES.USER_NOT_FOUND,
+        status: HTTP_STATUS.NOT_FOUND
+      })
+    }
+
+    const roleIds = user.role_ids || []
+    const roleCursor = databaseService.roles.find({
+      _id: { $in: roleIds }
+    })
+    const roles = await roleCursor.toArray()
+
+    // Sử dụng utility để thêm resources_url vào roles
+    const formattedRoles = await addResourcesUrlToRoles(roles)
+
     const [access_token, refresh_token] = await this.signAccessAndRefreshToken({
       user_id: user_id.toString(),
-      verify
+      verify,
+      roles: formattedRoles
     })
     await databaseService.refreshTokens.insertOne(
       new RefreshToken({
@@ -253,7 +349,8 @@ class UsersService {
     return {
       user_id,
       access_token,
-      refresh_token
+      refresh_token,
+      roles: formattedRoles
     }
   }
 
@@ -272,11 +369,25 @@ class UsersService {
   }
 
   async verifyEmail(user_id: string) {
-    // Tạo giá trị cập nhật
-    // MongoDB cập nhật giá trị
-    //check code valid
+    const user = await databaseService.users.findOne({ _id: new ObjectId(user_id) })
+    if (!user) {
+      throw new ErrorWithStatus({
+        message: USERS_MESSAGES.USER_NOT_FOUND,
+        status: HTTP_STATUS.NOT_FOUND
+      })
+    }
+
+    const roleIds = user.role_ids || []
+    const roleCursor = databaseService.roles.find({
+      _id: { $in: roleIds }
+    })
+    const roles = await roleCursor.toArray()
+
+    // Sử dụng utility để thêm resources_url vào roles
+    const formattedRoles = await addResourcesUrlToRoles(roles)
+
     const [token] = await Promise.all([
-      this.signAccessAndRefreshToken({ user_id, verify: UserVerifyStatus.Verified }),
+      this.signAccessAndRefreshToken({ user_id, verify: UserVerifyStatus.Verified, roles: formattedRoles }),
       databaseService.users.updateOne({ _id: new ObjectId(user_id) }, [
         {
           $set: {

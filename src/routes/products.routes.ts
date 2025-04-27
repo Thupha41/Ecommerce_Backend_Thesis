@@ -144,6 +144,4 @@ productsRouter.patch(
   wrapRequestHandler(updateProductThumbController)
 )
 
-
-
 export default productsRouter

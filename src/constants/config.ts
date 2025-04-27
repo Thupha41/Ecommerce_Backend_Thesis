@@ -47,16 +47,15 @@ export const envConfig = {
   dbCartsCollection: process.env.DB_CARTS_COLLECTION as string,
   dbSellersCollection: process.env.DB_SELLERS_COLLECTION as string,
   dbBooksCollection: process.env.DB_BOOKS_COLLECTION as string,
-  dbRolesCollection: process.env.DB_ROLES_COLLECTION as string,
-  dbPermissionsCollection: process.env.DB_PERMISSIONS_COLLECTION as string,
-  dbPermissionsRolesCollection: process.env.DB_PERMISSIONS_ROLES_COLLECTION as string,
   dbOrdersCollection: process.env.DB_ORDERS_COLLECTION as string,
   dbDeliveryInfosCollection: process.env.DB_DELIVERY_INFOS_COLLECTION as string,
   dbStationeryCollection: process.env.DB_STATIONERY_COLLECTION as string,
   dbSouvenirsCollection: process.env.DB_SOUVENIRS_COLLECTION as string,
   dbKitchenwareCollection: process.env.DB_KITCHENWARE_COLLECTION as string,
   dbInstrumentsCollection: process.env.DB_INSTRUMENTS_COLLECTION as string,
-
+  dbShopsCollection: process.env.DB_SHOPS_COLLECTION as string,
+  dbResourcesCollection: process.env.DB_RESOURCES_COLLECTION as string,
+  dbRolesCollection: process.env.DB_ROLES_COLLECTION as string,
   // jwt authentication
 
   jwtSecretAccessToken: process.env.JWT_SECRET_ACCESS_TOKEN as string,

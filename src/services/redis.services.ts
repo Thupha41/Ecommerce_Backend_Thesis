@@ -2,7 +2,6 @@ import { createClient } from 'redis'
 import { reserveInventory } from '~/models/repositories/inventory.repo'
 import { envConfig } from '~/constants/config'
 
-
 const REDIS_HOST = envConfig.redisHost || 'localhost'
 const REDIS_PORT = envConfig.redisPort || '6379'
 const REDIS_URL = envConfig.redisUrl || `redis://${REDIS_HOST}:${REDIS_PORT}`

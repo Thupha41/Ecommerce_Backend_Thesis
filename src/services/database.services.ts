@@ -21,6 +21,10 @@ import Souvenir from '~/models/schemas/Products/Souvenir.schema'
 import Kitchenware from '~/models/schemas/Products/Kitchenware.schema'
 import Instrument from '~/models/schemas/Products/Instrument.schema'
 
+import Shop from '~/models/schemas/Shop.schema'
+import Resource from '~/models/schemas/Resource.schema'
+import Role from '~/models/schemas/Role.schema'
+
 const uri = `mongodb+srv://${envConfig.dbUsername}:${envConfig.dbPassword}@twitter-cluster.hzc1q.mongodb.net/?retryWrites=true&w=majority&appName=Twitter-Cluster`
 
 class DatabaseService {
@@ -98,7 +102,15 @@ class DatabaseService {
   }
   get instruments(): Collection<Instrument> {
     return this.db.collection(envConfig.dbInstrumentsCollection)
-
+  }
+  get shops(): Collection<Shop> {
+    return this.db.collection(envConfig.dbShopsCollection)
+  }
+  get resources(): Collection<Resource> {
+    return this.db.collection(envConfig.dbResourcesCollection)
+  }
+  get roles(): Collection<Role> {
+    return this.db.collection(envConfig.dbRolesCollection)
   }
 }
 const databaseService = new DatabaseService()

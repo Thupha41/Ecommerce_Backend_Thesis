@@ -18,6 +18,8 @@ interface UserType {
   code?: string
   code_expired?: Date
   phone_number?: string
+  role_ids?: ObjectId[]
+  is_seller?: boolean
 }
 
 export default class User {
@@ -36,6 +38,8 @@ export default class User {
   code: string
   code_expired: Date
   phone_number: string
+  role_ids: ObjectId[]
+  is_seller: boolean
   constructor(user: UserType) {
     const date = new Date()
     this._id = user._id
@@ -53,5 +57,7 @@ export default class User {
     this.code = user.code || ''
     this.code_expired = user.code_expired || date
     this.phone_number = user.phone_number || ''
+    this.role_ids = user.role_ids || []
+    this.is_seller = user.is_seller || false
   }
 }

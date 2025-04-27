@@ -37,8 +37,7 @@ class OrderRepository {
           item_products.map(async (item: { productId: string; quantity: number; price: number }) => {
             // Tìm kiếm sản phẩm trong giỏ hàng
             const cartItem = foundCart.cart_products.find(
-              (product) =>
-                product.product_id.toString() === item.productId && product.shopId?.toString() === shopId
+              (product) => product.product_id.toString() === item.productId && product.shopId?.toString() === shopId
             )
             console.log('>>> cartItem', cartItem)
             if (!cartItem) {
@@ -57,11 +56,13 @@ class OrderRepository {
             }
 
             // Use productRepository.checkProductByServer to get product info
-            const productInfo = await productRepository.checkProductByServer([{
-              productId: item.productId,
-              quantity: item.quantity,
-              price: item.price
-            }])
+            const productInfo = await productRepository.checkProductByServer([
+              {
+                productId: item.productId,
+                quantity: item.quantity,
+                price: item.price
+              }
+            ])
 
             if (!productInfo[0]) {
               throw new ErrorWithStatus({
@@ -90,7 +91,6 @@ class OrderRepository {
       })
     )
   }
-
 
   /**
    * Kiểm tra tồn kho của sản phẩm

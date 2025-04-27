@@ -37,14 +37,14 @@ const corsOptions: CorsOptions = {
     }
 
     const allowedOrigins = [
-      envConfig.clientUrl,  // Your Expo URL from env
-      /^exp:\/\/.*$/,       // Any Expo URL
-      /^http:\/\/localhost:\d+$/,  // Local development
+      envConfig.clientUrl, // Your Expo URL from env
+      /^exp:\/\/.*$/, // Any Expo URL
+      /^http:\/\/localhost:\d+$/, // Local development
       envConfig.chatServiceUrl
     ]
 
     // Check if the origin matches any allowed pattern
-    const isAllowed = allowedOrigins.some(allowedOrigin => {
+    const isAllowed = allowedOrigins.some((allowedOrigin) => {
       if (typeof allowedOrigin === 'string') {
         return allowedOrigin === origin
       }
