@@ -35,11 +35,8 @@ export const verifyToken = ({ token, secretOrPublicKey }: { token: string; secre
 }
 
 export const extractToken = (req: Request) => {
-  if (
-    req.headers.authorization &&
-    req.headers.authorization.split(" ")[0] === "Bearer"
-  ) {
-    return req.headers.authorization.split(" ")[1];
+  if (req.headers.authorization && req.headers.authorization.split(' ')[0] === 'Bearer') {
+    return req.headers.authorization.split(' ')[1]
   }
-  return null;
-};
+  return null
+}

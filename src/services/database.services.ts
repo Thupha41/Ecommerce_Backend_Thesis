@@ -24,7 +24,7 @@ import Instrument from '~/models/schemas/Products/Instrument.schema'
 import Shop from '~/models/schemas/Shop.schema'
 import Resource from '~/models/schemas/Resource.schema'
 import Role from '~/models/schemas/Role.schema'
-
+import Review from '~/models/schemas/Review.schema'
 const uri = `mongodb+srv://${envConfig.dbUsername}:${envConfig.dbPassword}@twitter-cluster.hzc1q.mongodb.net/?retryWrites=true&w=majority&appName=Twitter-Cluster`
 
 class DatabaseService {
@@ -111,6 +111,9 @@ class DatabaseService {
   }
   get roles(): Collection<Role> {
     return this.db.collection(envConfig.dbRolesCollection)
+  }
+  get reviews(): Collection<Review> {
+    return this.db.collection(envConfig.dbReviewsCollection)
   }
 }
 const databaseService = new DatabaseService()

@@ -267,13 +267,13 @@ export const accessTokenValidator = validate(
       Authorization: {
         custom: {
           options: async (value: string, { req }) => {
-            if (nonSecurePaths.includes(req.path as typeof nonSecurePaths[number])) {
+            if (nonSecurePaths.includes(req.path as (typeof nonSecurePaths)[number])) {
               return true
             }
             const access_token = (value || '').split(' ')[1]
             const decoded = await verifyAccessToken(access_token, req as Request)
             console.log('>>> check decoded', JSON.stringify(decoded, null, 2))
-              ; (req as Request).decoded_authorization = decoded
+            ;(req as Request).decoded_authorization = decoded
           }
         }
       }
@@ -306,7 +306,7 @@ export const refreshTokenValidator = validate(
                   status: HTTP_STATUS.UNAUTHORIZED
                 })
               }
-              ; (req as Request).decoded_refresh_token = decoded_refresh_token
+              ;(req as Request).decoded_refresh_token = decoded_refresh_token
             } catch (error) {
               if (error instanceof JsonWebTokenError) {
                 throw new ErrorWithStatus({

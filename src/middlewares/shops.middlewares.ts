@@ -57,7 +57,7 @@ const shopDescriptionSchema: ParamSchema = {
 
 const shopEmailSchema: ParamSchema = {
   notEmpty: {
-    errorMessage: SHOP_MESSAGES.SHOP_EMAIL_IS_REQUIRED,
+    errorMessage: SHOP_MESSAGES.SHOP_EMAIL_IS_REQUIRED
   },
   isString: {
     errorMessage: SHOP_MESSAGES.SHOP_EMAIL_MUST_BE_A_STRING

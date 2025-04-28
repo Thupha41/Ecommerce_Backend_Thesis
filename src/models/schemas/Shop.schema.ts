@@ -1,5 +1,6 @@
+import { ShopStatus } from '~/constants/enums'
+
 import { ObjectId } from 'mongodb'
-import { ShopStatus } from '../../constants/enums'
 
 interface ShopType {
   _id?: ObjectId
@@ -19,6 +20,10 @@ interface ShopType {
   follower_count?: number
   is_followed?: boolean
   shop_rating?: number
+  total_reviews?: number // Tổng số đánh giá của shop
+  reviews_by_rating?: { [key: number]: number } // Số lượng đánh giá theo sao
+  reviews_with_media?: number // Số đánh giá có ảnh/video
+  total_media_count?: number // Tổng số ảnh/video
 }
 
 export default class Shop {
@@ -30,15 +35,20 @@ export default class Shop {
   shop_status: ShopStatus
   created_at: Date
   updated_at: Date
-  shop_response_rate?: number // optional
-  shop_hotline_phone?: string // optional
-  shop_email?: string // optional
-  shop_logo?: string // optional
-  shop_banner?: string // optional
-  shop_revenue?: number // optional
-  follower_count?: number // optional
-  is_followed?: boolean // optional
-  shop_rating?: number // optional
+  shop_response_rate?: number
+  shop_hotline_phone?: string
+  shop_email?: string
+  shop_logo?: string
+  shop_banner?: string
+  shop_revenue?: number
+  follower_count?: number
+  is_followed?: boolean
+  shop_rating?: number
+  total_reviews?: number
+  reviews_by_rating?: { [key: number]: number }
+  reviews_with_media?: number
+  total_media_count?: number
+
   constructor(shop: ShopType) {
     const date = new Date()
     this._id = shop._id
@@ -58,5 +68,9 @@ export default class Shop {
     this.follower_count = shop.follower_count || 0
     this.is_followed = shop.is_followed || false
     this.shop_rating = shop.shop_rating || 0
+    this.total_reviews = shop.total_reviews || 0
+    this.reviews_by_rating = shop.reviews_by_rating || { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 }
+    this.reviews_with_media = shop.reviews_with_media || 0
+    this.total_media_count = shop.total_media_count || 0
   }
 }

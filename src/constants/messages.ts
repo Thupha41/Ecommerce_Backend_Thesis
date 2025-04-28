@@ -264,7 +264,8 @@ export const ORDERS_MESSAGES = {
   GET_ONE_ORDER_BY_USER_SUCCESS: 'Get one order by user successfully',
   PLACE_ORDER_SUCCESS: 'Place order successfully',
   CANCEL_ORDER_SUCCESS: 'Cancel order successfully',
-  UPDATE_ORDER_STATUS_SUCCESS: 'Update order status successfully'
+  UPDATE_ORDER_STATUS_SUCCESS: 'Update order status successfully',
+  ORDER_NOT_DELIVERED: 'Order not delivered'
 } as const
 
 export const INVENTORY_MESSAGES = {
@@ -309,8 +310,7 @@ export const ROLES_MESSAGES = {
   ROLE_GRANT_ATTRIBUTES_MUST_BE_A_VALID_STRING: 'Role grant attributes must be a valid string',
   ROLE_GRANT_IS_REQUIRED: 'Role grant is required',
   ROLE_GRANT_RESOURCES_DOES_NOT_EXIST: 'Role grant resources does not exist',
-  GET_ROLE_LIST_RBAC_SUCCESS: 'Get role list RBAC successfully',
-
+  GET_ROLE_LIST_RBAC_SUCCESS: 'Get role list RBAC successfully'
 } as const
 
 export const RESOURCES_MESSAGES = {
@@ -328,7 +328,7 @@ export const RESOURCES_MESSAGES = {
   GET_RESOURCE_SUCCESS: 'Get resource successfully',
   GET_ALL_RESOURCES_SUCCESS: 'Get all resources successfully',
   RESOURCE_ALREADY_EXISTS: 'Resource already exists',
-  RESOURCE_IN_USE: 'Resource is in use',
+  RESOURCE_IN_USE: 'Resource is in use'
 } as const
 
 export const SHOP_MESSAGES = {
@@ -364,7 +364,7 @@ export const SHOP_MESSAGES = {
   SHOP_BANNER_MUST_BE_A_STRING: 'Shop banner must be a string',
   SHOP_BANNER_IS_INVALID: 'Shop banner is invalid',
   SHOP_NAME_ALREADY_EXISTS: 'Shop name already exists',
-  SHOP_HOTLINE_PHONE_ALREADY_EXISTS: 'Shop hotline phone already exists',
+  SHOP_HOTLINE_PHONE_ALREADY_EXISTS: 'Shop hotline phone already exists'
 } as const
 
 export const AUTH_MESSAGES = {
@@ -372,4 +372,38 @@ export const AUTH_MESSAGES = {
   NO_ROLES_ASSIGNED_TO_USER: 'No roles assigned to user',
   NO_PERMISSION_TO_ACCESS_RESOURCE: 'You do not have permission to access this resource',
   USER_NOT_AUTHENTICATED: 'User not authenticated'
+} as const
+
+export const REVIEWS_MESSAGES = {
+  REVIEW_NOT_FOUND: 'Review not found',
+  REVIEW_ALREADY_EXISTS: 'Review already exists',
+  REVIEW_CREATED_SUCCESS: 'Review created successfully',
+  REVIEW_UPDATED_SUCCESS: 'Review updated successfully',
+  REVIEW_DELETED_SUCCESS: 'Review deleted successfully',
+  REVIEW_ID_IS_INVALID: 'Review ID is invalid',
+  REVIEW_ID_IS_REQUIRED: 'Review ID is required',
+  GET_REVIEWS_SUCCESS: 'Get reviews successfully',
+  ORDER_ID_IS_REQUIRED: 'Order ID is required',
+  ORDER_ID_MUST_BE_STRING: 'Order ID must be a string',
+  ORDER_ID_IS_INVALID: 'Order ID is invalid',
+  PRODUCT_ID_IS_REQUIRED: 'Product ID is required',
+  PRODUCT_ID_MUST_BE_STRING: 'Product ID must be a string',
+  PRODUCT_ID_IS_INVALID: 'Product ID is invalid',
+  SHOP_ID_IS_REQUIRED: 'Shop ID is required',
+  SHOP_ID_MUST_BE_STRING: 'Shop ID must be a string',
+  SHOP_ID_IS_INVALID: 'Shop ID is invalid',
+  RATING_IS_REQUIRED: 'Rating is required',
+  RATING_MUST_BE_A_NUMBER: 'Rating must be a number',
+  RATING_MUST_BE_GREATER_THAN_0: 'Rating must be greater than 0',
+  RATING_MUST_BE_LESS_THAN_6: 'Rating must be less than 6',
+  RATING_MUST_BE_FROM_1_TO_5: 'Rating must be from 1 to 5',
+  COMMENT_IS_REQUIRED: 'Comment is required',
+  COMMENT_MUST_BE_STRING: 'Comment must be a string',
+  COMMENT_LENGTH_MUST_BE_FROM_1_TO_1000: 'Comment length must be from 1 to 1000',
+  MEDIA_IS_REQUIRED: 'Media is required',
+  MEDIA_MUST_BE_AN_ARRAY: 'Media must be an array',
+  MEDIA_ITEM_MUST_BE_A_STRING: 'Media item must be a string',
+  MEDIA_LENGTH_MUST_BE_LESS_THAN_5: 'Media length must be less than 5',
+  IS_ANONYMOUS_MUST_BE_A_BOOLEAN: 'Is anonymous must be a boolean',
+  STATUS_MUST_BE_VALID: 'Status must be valid',
 } as const

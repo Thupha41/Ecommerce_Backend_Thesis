@@ -1,8 +1,8 @@
-import { Router } from "express"
-import { createShopValidator, shopIdValidator, updateShopValidator } from "~/middlewares/shops.middlewares"
-import { wrapRequestHandler } from "~/utils/handlers"
-import { accessTokenValidator } from "~/middlewares/users.middlewares"
-import { createShopController, updateShopController, deleteShopController } from "~/controllers/shops.controllers"
+import { Router } from 'express'
+import { createShopValidator, shopIdValidator, updateShopValidator } from '~/middlewares/shops.middlewares'
+import { wrapRequestHandler } from '~/utils/handlers'
+import { accessTokenValidator } from '~/middlewares/users.middlewares'
+import { createShopController, updateShopController, deleteShopController } from '~/controllers/shops.controllers'
 
 const shopRouter = Router()
 shopRouter.use(accessTokenValidator)

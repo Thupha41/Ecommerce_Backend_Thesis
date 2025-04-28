@@ -25,12 +25,12 @@ class UsersService {
     verify,
     roles
   }: {
-    user_id: string;
-    verify: UserVerifyStatus;
+    user_id: string
+    verify: UserVerifyStatus
     roles: Array<{
-      role_name: string;
-      role_description: string;
-      role_grant: Array<any>;
+      role_name: string
+      role_description: string
+      role_grant: Array<any>
     }>
   }) {
     return signToken({
@@ -53,13 +53,13 @@ class UsersService {
     roles,
     exp
   }: {
-    user_id: string;
-    verify: UserVerifyStatus;
+    user_id: string
+    verify: UserVerifyStatus
     roles: Array<{
-      role_name: string;
-      role_description: string;
-      role_grant: Array<any>;
-    }>;
+      role_name: string
+      role_description: string
+      role_grant: Array<any>
+    }>
     exp?: number
   }) {
     if (exp) {
@@ -100,12 +100,12 @@ class UsersService {
     verify,
     roles
   }: {
-    user_id: string;
-    verify: UserVerifyStatus;
+    user_id: string
+    verify: UserVerifyStatus
     roles: Array<{
-      role_name: string;
-      role_description: string;
-      role_grant: Array<any>;
+      role_name: string
+      role_description: string
+      role_grant: Array<any>
     }>
   }) {
     return Promise.all([

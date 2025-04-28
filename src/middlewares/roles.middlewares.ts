@@ -96,7 +96,6 @@ const roleGrantSchema: ParamSchema = {
             status: HTTP_STATUS.UNPROCESSABLE_ENTITY
           })
         }
-
       }
 
       return true

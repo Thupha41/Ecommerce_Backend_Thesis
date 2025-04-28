@@ -82,3 +82,9 @@ export enum ShopStatus {
   Inactive = 'inactive',
   Pending = 'pending'
 }
+
+export enum ReviewStatus {
+  Pending = 'pending',
+  Approved = 'approved',
+  Rejected = 'rejected'
+}
