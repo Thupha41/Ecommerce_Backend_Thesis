@@ -1,5 +1,5 @@
 import { Router } from 'express'
-import { accessTokenValidator, verifiedUserValidator } from '~/middlewares/users.middlewares'
+import { accessTokenValidator } from '~/middlewares/users.middlewares'
 import {
   createProductController,
   publishProductController,
@@ -60,7 +60,7 @@ productsRouter.get('/image/:name', serveImageController)
 productsRouter.get('/search/:keySearch', searchProductValidator, wrapRequestHandler(getSearchProductsController))
 
 // Authentication required routes
-productsRouter.use(accessTokenValidator, verifiedUserValidator)
+productsRouter.use(accessTokenValidator)
 
 /**
  * Description: Get all drafts for shop

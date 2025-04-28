@@ -1,15 +1,15 @@
 import express from 'express'
 import {
-    createResourceController,
-    getAllResourcesController,
-    getResourceByIdController,
-    updateResourceController,
-    deleteResourceController
+  createResourceController,
+  getAllResourcesController,
+  getResourceByIdController,
+  updateResourceController,
+  deleteResourceController
 } from '~/controllers/resources.controllers'
 import {
-    createResourceValidator,
-    resourceIdValidator,
-    updateResourceValidator
+  createResourceValidator,
+  resourceIdValidator,
+  updateResourceValidator
 } from '~/middlewares/resources.middlewares'
 import { wrapRequestHandler } from '~/utils/handlers'
 import { accessTokenValidator } from '~/middlewares/users.middlewares'
@@ -17,63 +17,48 @@ const resourcesRouter = express.Router()
 
 resourcesRouter.use(accessTokenValidator)
 /*
-* Description: Create resource
-* Path: /resources
-* Method: POST
-*/
+ * Description: Create resource
+ * Path: /resources
+ * Method: POST
+ */
 
-resourcesRouter.post(
-    '/',
-    createResourceValidator,
-    wrapRequestHandler(createResourceController)
-)
+resourcesRouter.post('/', createResourceValidator, wrapRequestHandler(createResourceController))
 
 /*
-* Description: Get all resources
-* Path: /resources
-* Method: GET
-*/
+ * Description: Get all resources
+ * Path: /resources
+ * Method: GET
+ */
 
-resourcesRouter.get(
-    '/',
-    wrapRequestHandler(getAllResourcesController)
-)
+resourcesRouter.get('/', wrapRequestHandler(getAllResourcesController))
 
 /*
-* Description: Get resource by id
-* Path: /resources/:resource_id
-* Method: GET
-*/
+ * Description: Get resource by id
+ * Path: /resources/:resource_id
+ * Method: GET
+ */
 
-resourcesRouter.get(
-    '/:resource_id',
-    resourceIdValidator,
-    wrapRequestHandler(getResourceByIdController)
-)
+resourcesRouter.get('/:resource_id', resourceIdValidator, wrapRequestHandler(getResourceByIdController))
 
 /*
-* Description: Update resource
-* Path: /resources/:resource_id
-* Method: PATCH
-*/
+ * Description: Update resource
+ * Path: /resources/:resource_id
+ * Method: PATCH
+ */
 
 resourcesRouter.patch(
-    '/:resource_id',
-    resourceIdValidator,
-    updateResourceValidator,
-    wrapRequestHandler(updateResourceController)
+  '/:resource_id',
+  resourceIdValidator,
+  updateResourceValidator,
+  wrapRequestHandler(updateResourceController)
 )
 
 /*
-* Description: Delete resource
-* Path: /resources/:resource_id
-* Method: DELETE
-*/
+ * Description: Delete resource
+ * Path: /resources/:resource_id
+ * Method: DELETE
+ */
 
-resourcesRouter.delete(
-    '/:resource_id',
-    resourceIdValidator,
-    wrapRequestHandler(deleteResourceController)
-)
+resourcesRouter.delete('/:resource_id', resourceIdValidator, wrapRequestHandler(deleteResourceController))
 
-export default resourcesRouter 
+export default resourcesRouter

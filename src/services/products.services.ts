@@ -69,6 +69,10 @@ class Product {
       product_variations: this.product_variations,
       isDraft: this.isDraft,
       isPublished: this.isPublished,
+      total_reviews: 0,
+      reviews_by_rating: { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 },
+      reviews_with_media: 0,
+      total_media_count: 0,
       created_at: new Date(),
       updated_at: new Date()
     }

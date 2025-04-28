@@ -1,7 +1,6 @@
 import { ObjectId } from 'mongodb'
 import { ProductType } from '~/constants/enums'
 
-// Base Product Interface
 export interface IProductType {
   _id?: ObjectId
   product_name: string
@@ -19,9 +18,12 @@ export interface IProductType {
   isPublished?: boolean
   created_at?: Date
   updated_at?: Date
+  total_reviews?: number // Tổng số đánh giá
+  reviews_by_rating?: { [key: number]: number } // Số lượng đánh giá theo sao
+  reviews_with_media?: number // Số đánh giá có ảnh/video
+  total_media_count?: number // Tổng số ảnh/video
 }
 
-// Base Product Class
 export default class Product {
   _id?: ObjectId
   product_name: string
@@ -33,12 +35,16 @@ export default class Product {
   product_description: string
   product_shop: ObjectId
   product_attributes: any
-  product_ratingsAverage: number = 4.5
-  product_variations: Array<any> = []
-  isDraft: boolean = true
-  isPublished: boolean = false
-  created_at: Date = new Date()
-  updated_at: Date = new Date()
+  product_ratingsAverage: number
+  product_variations: Array<any>
+  isDraft: boolean
+  isPublished: boolean
+  created_at: Date
+  updated_at: Date
+  total_reviews: number
+  reviews_by_rating: { [key: number]: number }
+  reviews_with_media: number
+  total_media_count: number
 
   constructor({
     _id,
@@ -56,7 +62,11 @@ export default class Product {
     isDraft,
     isPublished,
     created_at,
-    updated_at
+    updated_at,
+    total_reviews,
+    reviews_by_rating,
+    reviews_with_media,
+    total_media_count
   }: IProductType) {
     const date = new Date()
     this._id = _id
@@ -75,6 +85,10 @@ export default class Product {
     this.isPublished = isPublished || false
     this.created_at = created_at || date
     this.updated_at = updated_at || date
+    this.total_reviews = total_reviews || 0
+    this.reviews_by_rating = reviews_by_rating || { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 }
+    this.reviews_with_media = reviews_with_media || 0
+    this.total_media_count = total_media_count || 0
   }
 
   private generateSlug(name: string): string {
