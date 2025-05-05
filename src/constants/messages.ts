@@ -63,7 +63,8 @@ export const USERS_MESSAGES = {
   GMAIL_NOT_VERIFIED: 'Gmail not verified',
   UPLOAD_SUCCESS: 'Upload success',
   REFRESH_TOKEN_SUCCESS: 'Refresh token success',
-  GET_VIDEO_STATUS_SUCCESS: 'Get video status success'
+  GET_VIDEO_STATUS_SUCCESS: 'Get video status success',
+  PERMISSION_DENIED: 'Permission denied. Admin role required.'
 } as const
 
 export const TWEETS_MESSAGES = {
@@ -406,4 +407,26 @@ export const REVIEWS_MESSAGES = {
   MEDIA_LENGTH_MUST_BE_LESS_THAN_5: 'Media length must be less than 5',
   IS_ANONYMOUS_MUST_BE_A_BOOLEAN: 'Is anonymous must be a boolean',
   STATUS_MUST_BE_VALID: 'Status must be valid',
+} as const
+
+export const CATEGORIES_MESSAGES = {
+  CATEGORY_NOT_FOUND: 'Category not found',
+  LEVEL_MUST_BE_1_IF_PARENT_ID_IS_NOT_PROVIDED: 'Level must be 1 if parentId is not provided',
+  CATEGORY_ALREADY_EXISTS: 'Category already exists',
+  CATEGORY_CREATED_SUCCESS: 'Category created successfully',
+  CATEGORY_UPDATED_SUCCESS: 'Category updated successfully',
+  CATEGORY_DELETED_SUCCESS: 'Category deleted successfully',
+  CATEGORY_NAME_IS_REQUIRED: 'Category name is required',
+  CATEGORY_NAME_MUST_BE_A_STRING: 'Category name must be a string',
+  CATEGORY_NAME_LENGTH_MUST_BE_FROM_1_TO_100: 'Category name length must be from 1 to 100',
+  CATEGORY_IMAGE_MUST_BE_A_STRING: 'Category image must be a string',
+  PARENT_ID_MUST_BE_A_STRING: 'Parent ID must be a string',
+  PARENT_ID_IS_INVALID: 'Parent ID is invalid',
+  LEVEL_MUST_BE_AN_INTEGER: 'Level must be an integer',
+  LEVEL_MUST_BE_1_TO_4: 'Level must be 1 to 4',
+  CATEGORY_HAS_CHILDREN: 'Cannot delete category with subcategories',
+  GET_CATEGORY_SUCCESS: 'Get category successfully',
+  GET_CATEGORIES_SUCCESS: 'Get categories successfully',
+  GET_CHILDREN_CATEGORIES_SUCCESS: 'Get children categories successfully',
+  GET_PRODUCTS_BY_HIERARCHY_SUCCESS: 'Get products by hierarchy successfully'
 } as const

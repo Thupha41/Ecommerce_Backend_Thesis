@@ -1,45 +1,78 @@
 import { Request } from 'express'
-import { File } from 'formidable'
+import { File, Fields } from 'formidable'
 import fs from 'fs'
 import path from 'path'
-import { UPLOAD_IMAGE_TEMP_DIR, UPLOAD_VIDEO_DIR, UPLOAD_VIDEO_TEMP_DIR } from '~/constants/dir'
+import { UPLOAD_IMAGE_TEMP_DIR, UPLOAD_VIDEO_DIR, UPLOAD_VIDEO_TEMP_DIR, UPLOAD_CATEGORY_MEDIA_DIR } from '~/constants/dir'
+
+interface UploadImageOptions {
+  uploadDir?: string
+  fieldName?: string
+  maxFiles?: number
+  maxFileSize?: number
+  maxTotalFileSize?: number
+}
+
+// Return type for handleUploadImage
+interface UploadImageResult {
+  fields: Fields
+  files: File[]
+}
 
 export const initFolder = () => {
-  ;[UPLOAD_IMAGE_TEMP_DIR, UPLOAD_VIDEO_TEMP_DIR].forEach((dir) => {
+  ;[UPLOAD_IMAGE_TEMP_DIR, UPLOAD_VIDEO_TEMP_DIR, UPLOAD_CATEGORY_MEDIA_DIR].forEach((dir) => {
     if (!fs.existsSync(dir)) {
       fs.mkdirSync(dir, {
         recursive: true // mục đích là để tạo folder nested
       })
     }
   })
+
+  // Create level subdirectories for categories (1-4)
+  for (let i = 1; i <= 4; i++) {
+    const levelDir = path.resolve(UPLOAD_CATEGORY_MEDIA_DIR, `level_${i}`);
+    if (!fs.existsSync(levelDir)) {
+      fs.mkdirSync(levelDir, { recursive: true });
+    }
+  }
 }
 
-export const handleUploadImage = async (req: Request) => {
+export const handleUploadImage = async (req: Request, options: UploadImageOptions = {}) => {
   const formidable = (await import('formidable')).default
+  const {
+    uploadDir = UPLOAD_IMAGE_TEMP_DIR,
+    fieldName = 'image',
+    maxFiles = 4,
+    maxFileSize = 300 * 1024, // 300KB
+    maxTotalFileSize = 300 * 1024 * 4
+  } = options
+
   const form = formidable({
-    uploadDir: UPLOAD_IMAGE_TEMP_DIR,
-    maxFiles: 4,
+    uploadDir,
+    maxFiles,
     keepExtensions: true,
-    maxFileSize: 300 * 1024, // 300KB
-    maxTotalFileSize: 300 * 1024 * 4,
+    maxFileSize,
+    maxTotalFileSize,
     filter: function ({ name, originalFilename, mimetype }) {
-      const valid = name === 'product_thumb' && Boolean(mimetype?.includes('image/'))
+      const valid = Boolean(mimetype?.includes('image/'))
       if (!valid) {
         form.emit('error' as any, new Error('File type is not valid') as any)
       }
       return valid
     }
   })
-  return new Promise<File[]>((resolve, reject) => {
+  return new Promise<UploadImageResult>((resolve, reject) => {
     form.parse(req, (err, fields, files) => {
       if (err) {
         return reject(err)
       }
-      // eslint-disable-next-line no-extra-boolean-cast
-      if (!Boolean(files.image)) {
+
+      if (!Boolean(files[fieldName])) {
         return reject(new Error('File is empty'))
       }
-      resolve(files.image as File[])
+      resolve({
+        fields,
+        files: files[fieldName] as File[]
+      })
     })
   })
 }
