@@ -57,6 +57,7 @@ export const envConfig = {
   dbResourcesCollection: process.env.DB_RESOURCES_COLLECTION as string,
   dbRolesCollection: process.env.DB_ROLES_COLLECTION as string,
   dbReviewsCollection: process.env.DB_REVIEWS_COLLECTION as string,
+  dbCategoriesCollection: process.env.DB_CATEGORIES_COLLECTION as string,
   // jwt authentication
 
   jwtSecretAccessToken: process.env.JWT_SECRET_ACCESS_TOKEN as string,

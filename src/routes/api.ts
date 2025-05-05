@@ -17,6 +17,7 @@ import ordersRouter from './orders.routes'
 import resourcesRouter from './resources.routes'
 import rolesRouter from './roles.routes'
 import shopRouter from './shops.routes'
+import categoryRouter from './categories.routes'
 import { checkUserPermission, checkServicesJWT } from '~/middlewares/rbac.middlewares'
 import { accessTokenValidator } from '~/middlewares/users.middlewares'
 import reviewsRouter from './reviews.routes'
@@ -65,6 +66,8 @@ const initApiRoute = (app: Application) => {
   router.use('/roles', rolesRouter)
   //shops
   router.use('/shops', shopRouter)
+  //categories
+  router.use('/categories', categoryRouter)
   //check services JWT
   router.use('/verify-services-jwt', checkServicesJWT)
   //reviews

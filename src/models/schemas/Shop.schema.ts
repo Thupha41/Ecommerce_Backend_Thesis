@@ -20,10 +20,6 @@ interface ShopType {
   follower_count?: number
   is_followed?: boolean
   shop_rating?: number
-  total_reviews?: number // Tổng số đánh giá của shop
-  reviews_by_rating?: { [key: number]: number } // Số lượng đánh giá theo sao
-  reviews_with_media?: number // Số đánh giá có ảnh/video
-  total_media_count?: number // Tổng số ảnh/video
 }
 
 export default class Shop {
@@ -44,10 +40,6 @@ export default class Shop {
   follower_count?: number
   is_followed?: boolean
   shop_rating?: number
-  total_reviews?: number
-  reviews_by_rating?: { [key: number]: number }
-  reviews_with_media?: number
-  total_media_count?: number
 
   constructor(shop: ShopType) {
     const date = new Date()
@@ -68,9 +60,5 @@ export default class Shop {
     this.follower_count = shop.follower_count || 0
     this.is_followed = shop.is_followed || false
     this.shop_rating = shop.shop_rating || 0
-    this.total_reviews = shop.total_reviews || 0
-    this.reviews_by_rating = shop.reviews_by_rating || { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 }
-    this.reviews_with_media = shop.reviews_with_media || 0
-    this.total_media_count = shop.total_media_count || 0
   }
 }

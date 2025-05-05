@@ -6,6 +6,7 @@ import { ErrorWithStatus } from '~/models/Errors'
 import { SHOP_MESSAGES, USERS_MESSAGES } from '~/constants/messages'
 import Shop from '~/models/schemas/Shop.schema'
 import { ShopStatus } from '~/constants/enums'
+import { generateSlug } from '~/utils'
 
 class ShopService {
   async createShop(user_id: string, shop: IUpsertShopReqBody) {
@@ -20,14 +21,12 @@ class ShopService {
 
     const { shop_owner, shop_status, ...shopData } = shop
 
-    //generate slug
-    const shop_slug = shop.shop_slug || shop.shop_name.toLowerCase().replace(/\s+/g, '-')
 
     const newShop = await databaseService.shops.insertOne(
       new Shop({
         shop_owner: new ObjectId(user_id),
         shop_status: ShopStatus.Pending,
-        shop_slug,
+        shop_slug: generateSlug(shop.shop_name),
         created_at: new Date(),
         updated_at: new Date(),
         ...shopData

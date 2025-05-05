@@ -6,7 +6,6 @@ import { ErrorWithStatus } from '~/models/Errors'
 import { AUTH_MESSAGES } from '~/constants/messages'
 import { nonSecurePaths } from '~/constants/nonSecurePath'
 import { envConfig } from '~/constants/config'
-import { result } from 'lodash'
 
 // Map HTTP methods to corresponding actions
 const mapMethodToAction = (method: string) => {
@@ -26,9 +25,67 @@ const mapMethodToAction = (method: string) => {
   }
 }
 
+// Simple path matcher that handles path parameters
+const isPathMatch = (pattern: string, path: string): boolean => {
+  try {
+    // Split the pattern and path into segments
+    const patternSegments = pattern.split('/').filter(Boolean);
+    const pathSegments = path.split('/').filter(Boolean);
+
+    // If the number of segments differs, they can't match
+    if (patternSegments.length !== pathSegments.length) {
+      // console.log(`Path length mismatch: ${pattern} (${patternSegments.length}) vs ${path} (${pathSegments.length})`);
+      return false;
+    }
+
+    // Check each segment
+    for (let i = 0; i < patternSegments.length; i++) {
+      const patternSeg = patternSegments[i];
+      const pathSeg = pathSegments[i];
+
+      // If pattern segment starts with :, it's a parameter and matches anything
+      if (patternSeg.startsWith(':')) {
+        continue;
+      }
+
+      // Otherwise, the segments should match exactly
+      if (patternSeg !== pathSeg) {
+        // console.log(`Segment mismatch at position ${i}: ${patternSeg} vs ${pathSeg}`);
+        return false;
+      }
+    }
+
+    console.log(`Path match found: ${pattern} matches ${path}`);
+    // All segments matched
+    return true;
+  } catch (error) {
+    console.error('Path matching error:', error);
+    return false;
+  }
+}
+
 export const checkUserPermission = (req: Request, res: Response, next: NextFunction) => {
-  if (nonSecurePaths.includes(req.path as (typeof nonSecurePaths)[number])) {
-    return next()
+  // Get current request actions based on HTTP method
+  const requestActions = mapMethodToAction(req.method)
+
+  // Check if path is in non-secure paths with action consideration
+  for (const nonSecurePath of nonSecurePaths) {
+    // Check if the path pattern matches
+    if (isPathMatch(nonSecurePath.path, req.path)) {
+      // If no actions are specified, all actions are allowed
+      if (!nonSecurePath.actions) {
+        return next()
+      }
+
+      // Check if any of the request actions are in the allowed non-secure actions
+      const isActionAllowed = requestActions.some(action =>
+        nonSecurePath.actions?.includes(action)
+      )
+
+      if (isActionAllowed) {
+        return next()
+      }
+    }
   }
 
   if (req.decoded_authorization) {
@@ -51,7 +108,7 @@ export const checkUserPermission = (req: Request, res: Response, next: NextFunct
     console.log('Base Path:', basePath)
 
     // Get allowed actions for current method
-    const allowedActions = mapMethodToAction(req.method)
+    const allowedActions = requestActions
     console.log('Allowed Actions:', allowedActions)
 
     // Check if user has permission for this resource and action
