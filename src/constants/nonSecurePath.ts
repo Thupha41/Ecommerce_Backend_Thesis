@@ -17,6 +17,7 @@ export const nonSecurePaths: NonSecurePathConfig[] = [
   { path: '/delivery-info/default' },
   { path: '/check-services-jwt' },
   // Base paths
+  { path: '/categories', actions: ['create'] },
   { path: '/categories/level/:level', actions: ['read', 'read:any'] },
   { path: '/categories/children/:parentId', actions: ['read', 'read:any'] },
   { path: '/categories/products/:categoryId', actions: ['read', 'read:any'] },

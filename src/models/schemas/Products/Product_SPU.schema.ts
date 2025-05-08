@@ -5,7 +5,11 @@ export interface IProductType {
     _id?: ObjectId
     product_name: string
     product_thumb: string
-    SPU_no: string
+    product_media: Array<{
+        url: string; // URL của ảnh hoặc video
+        type: "image" | "video"; // Loại media
+    }>
+    spu_no: string
     product_price: number
     product_quantity: number
     product_slug?: string
@@ -13,8 +17,21 @@ export interface IProductType {
     product_description: string
     product_shop: ObjectId
     product_attributes: Array<any>
+    /* product_attributes: [
+            {
+                name: "Nơi sản xuất",
+                value: "Việt Nam"
+            },
+            {
+                name: "Kích thước",
+                value: "X, L, M, S"
+            },
+            
+        ]
+    */
     product_ratingsAverage?: number
     product_variations?: Array<any>
+    sold_quantity?: number
     isDraft?: boolean
     isPublished?: boolean
     isDeleted?: boolean
@@ -26,7 +43,11 @@ export default class Product {
     _id?: ObjectId
     product_name: string
     product_thumb: string
-    SPU_no: string
+    product_media: Array<{
+        url: string; // URL của ảnh hoặc video
+        type: "image" | "video"; // Loại media
+    }>
+    spu_no: string
     product_price: number
     product_quantity: number
     product_slug: string
@@ -36,6 +57,7 @@ export default class Product {
     product_attributes: Array<any>
     product_ratingsAverage: number
     product_variations: Array<any>
+    sold_quantity: number
     isDraft: boolean
     isPublished: boolean
     isDeleted: boolean
@@ -46,7 +68,8 @@ export default class Product {
         _id,
         product_name,
         product_thumb,
-        SPU_no,
+        product_media,
+        spu_no,
         product_price,
         product_quantity,
         product_slug,
@@ -56,6 +79,7 @@ export default class Product {
         product_attributes,
         product_ratingsAverage,
         product_variations,
+        sold_quantity,
         isDraft,
         isPublished,
         isDeleted,
@@ -66,7 +90,8 @@ export default class Product {
         this._id = _id
         this.product_name = product_name
         this.product_thumb = product_thumb
-        this.SPU_no = SPU_no
+        this.product_media = product_media || []
+        this.spu_no = spu_no
         this.product_price = product_price
         this.product_quantity = product_quantity
         this.product_slug = product_slug || generateSlug(product_name)
@@ -76,8 +101,9 @@ export default class Product {
         this.product_attributes = product_attributes || []
         this.product_ratingsAverage = product_ratingsAverage || 4.5
         this.product_variations = product_variations || []
-        this.isDraft = isDraft || true
-        this.isPublished = isPublished || false
+        this.sold_quantity = sold_quantity || 0
+        this.isDraft = isDraft || false
+        this.isPublished = isPublished || true
         this.isDeleted = isDeleted || false
         this.created_at = created_at || date
         this.updated_at = updated_at || date

@@ -1,7 +1,7 @@
 import { createClient } from 'redis';
 import { reserveInventory } from '~/models/repositories/inventory.repo';
 import { envConfig } from '~/constants/config';
-
+import { ShopProductsCache } from '~/models/requests/shops.requests';
 const REDIS_HOST = envConfig.redisHost || 'localhost';
 const REDIS_PORT = envConfig.redisPort || '6379';
 const REDIS_URL = envConfig.redisUrl || `redis://${REDIS_HOST}:${REDIS_PORT}`;
@@ -190,4 +190,66 @@ const getShopStats = async (shopId: string) => {
   }
 };
 
-export { acquiredLock, releaseLock, setProductStats, getProductStats, setShopStats, getShopStats, redisConnected };
+const getShopProductsFromCache = async (shopId: string, sortBy: string, page?: number, limit?: number): Promise<ShopProductsCache | null> => {
+  if (!redisConnected) {
+    console.log('Redis not connected, cannot retrieve shop products from cache');
+    return null;
+  }
+
+  const cacheKey = `products:shop:${shopId}:${sortBy}:${page || 1}:${limit || 20}`;
+  try {
+    const cached = await redisClient.get(cacheKey);
+    if (!cached) return null;
+
+    const parsedCache: ShopProductsCache = JSON.parse(cached);
+    return parsedCache;
+  } catch (err) {
+    console.error(`Error retrieving shop products from cache for key ${cacheKey}:`, err);
+    return null;
+  }
+};
+
+// Hàm mới: Lưu danh sách sản phẩm của shop vào cache
+const setShopProductsToCache = async (shopId: string, sortBy: string, data: any, page?: number, limit?: number) => {
+  if (!redisConnected) {
+    console.log('Redis not connected, cannot cache shop products');
+    return;
+  }
+
+  const cacheKey = `products:shop:${shopId}:${sortBy}:${page || 1}:${limit || 20}`;
+  try {
+    await redisClient.setEx(cacheKey, 900, JSON.stringify(data)); // TTL 15 phút
+    console.log(`Cached shop products for key: ${cacheKey}`);
+  } catch (err) {
+    console.error(`Error caching shop products for key ${cacheKey}:`, err);
+  }
+};
+
+// Hàm xóa cache của shop khi dữ liệu thay đổi
+const invalidateShopProductsCache = async (shopId: string) => {
+  if (!redisConnected) {
+    console.log('Redis not connected, cannot invalidate shop products cache');
+    return;
+  }
+
+  const pattern = `products:shop:${shopId}:*`;
+  try {
+    // Sử dụng SCAN để xóa tất cả key khớp với pattern
+    let cursor = '0';
+    do {
+      const { cursor: newCursor, keys } = await redisClient.scan(parseInt(cursor), { MATCH: pattern, COUNT: 100 });
+      if (keys.length > 0) {
+        const pipeline = redisClient.multi();
+        keys.forEach((key) => pipeline.del(key));
+        await pipeline.exec();
+      }
+      cursor = newCursor.toString();
+    } while (cursor !== '0');
+    console.log(`Invalidated cache for shop ${shopId}`);
+  } catch (err) {
+    console.error(`Error invalidating shop products cache for shop ${shopId}:`, err);
+  }
+}
+
+
+export { acquiredLock, releaseLock, setProductStats, getProductStats, setShopStats, getShopStats, redisConnected, setShopProductsToCache, invalidateShopProductsCache, getShopProductsFromCache };

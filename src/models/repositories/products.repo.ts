@@ -5,6 +5,7 @@ import { ICheckoutProduct } from '../requests/checkout.requests'
 
 class ProductRepository {
   private products = databaseService.products
+  private productSPUs = databaseService.productSPUs
 
   async findDrafts({ query, limit, skip }: { query: any; limit: number; skip: number }) {
     return this.queryProducts({ query, limit, skip })
@@ -117,7 +118,8 @@ class ProductRepository {
       filter._id.$in = filter._id.$in.map((id: string) => new ObjectId(id))
     }
 
-    return await this.products.find(filter).sort(sortBy).skip(skip).limit(limit).project(projection).toArray()
+    // return await this.products.find(filter).sort(sortBy).skip(skip).limit(limit).project(projection).toArray()
+    return await this.productSPUs.find(filter).sort(sortBy).skip(skip).limit(limit).project(projection).toArray()
   }
 
   async findOne({ product_id, unSelect }: { product_id: string; unSelect?: string[] }) {
@@ -206,11 +208,11 @@ class ProductRepository {
         // Only add nested properties if the result is not empty
         if (Object.keys(res).length > 0) {
           Object.keys(res).forEach((resKey) => {
-            ;(final as Record<string, unknown>)[`${key}.${resKey}`] = res[resKey as keyof typeof res]
+            ; (final as Record<string, unknown>)[`${key}.${resKey}`] = res[resKey as keyof typeof res]
           })
         }
       } else {
-        ;(final as Record<string, unknown>)[key] = cleanObj[key as keyof ProductUpdateReqBody]
+        ; (final as Record<string, unknown>)[key] = cleanObj[key as keyof ProductUpdateReqBody]
       }
     })
     console.log(`[3]`, final)

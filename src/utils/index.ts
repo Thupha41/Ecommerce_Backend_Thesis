@@ -57,3 +57,7 @@ export const generateSlug = (name: string) => {
 
   return str;
 }
+
+export const generateSPUNo = () => {
+  return Math.floor(Math.random() * 899999) + 100000
+}

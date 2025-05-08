@@ -269,55 +269,76 @@ class CategoriesService {
     }
 
     async getProductsByCategoryHierarchy(categoryId: string) {
-        // Kiểm tra danh mục tồn tại
+        // Bước 1: Kiểm tra danh mục tồn tại
+        console.log('Step 1: Checking if category exists with categoryId:', categoryId);
         const category = await databaseService.categories.findOne({
             _id: new ObjectId(categoryId),
         });
         if (!category) {
+            console.log('Category not found for categoryId:', categoryId);
             throw new ErrorWithStatus({
                 message: CATEGORIES_MESSAGES.CATEGORY_NOT_FOUND,
                 status: HTTP_STATUS.NOT_FOUND,
             });
         }
+        console.log('Found category:', category);
 
-        // Đảm bảo danh mục là cấp 4 (leaf category) để lấy nhánh
-        if (category.level !== 4) {
-            throw new ErrorWithStatus({
-                message: "Only leaf categories (Level 4) can be used to fetch hierarchy products",
-                status: HTTP_STATUS.BAD_REQUEST,
-            });
+        // Bước 2: Kiểm tra xem danh mục hiện tại có con hay không
+        console.log('Step 2: Checking if category has children...');
+        const hasChildren = await databaseService.categories.countDocuments({
+            category_path: { $regex: `^${category.category_path}/${category._id}` },
+        }) > 0;
+        console.log('Has children:', hasChildren);
+
+        // Bước 3: Khởi tạo danh sách danh mục liên quan và ID
+        console.log('Step 3: Initializing related categories and IDs');
+        let relatedCategories: any[] = [category]; // Bao gồm danh mục hiện tại
+        let relatedLevelIds: ObjectId[] = [new ObjectId(categoryId)];
+        console.log('Initial relatedCategories:', relatedCategories);
+        console.log('Initial relatedLevelIds:', relatedLevelIds);
+
+        // Bước 4: Nếu có con, lấy tất cả danh mục trong nhánh
+        if (hasChildren) {
+            console.log('Step 4: Category has children, getting all related categories in branch...');
+            const pathPrefix = category?.category_path?.split('/').slice(0, -1).join('/') || '';
+            console.log('Path prefix for branch:', pathPrefix);
+            relatedCategories = await databaseService.categories
+                .find({
+                    category_path: { $regex: `^${pathPrefix}` },
+                })
+                .toArray();
+            console.log('All related categories:', relatedCategories);
+            relatedLevelIds = relatedCategories.map((cat) => cat._id);
+            console.log('Updated relatedLevelIds:', relatedLevelIds);
+        } else {
+            console.log('Step 4: Category is a leaf, no children to fetch.');
         }
 
-        // Lấy tiền tố đường dẫn từ Level 1 đến Level 3
-        const categoryPath = category.category_path;
-        const pathPrefix = categoryPath?.split('/').slice(0, -1).join('/') || ''; // Loại bỏ _id cấp 4
-
-        // Tìm tất cả danh mục cấp 4 có cùng tiền tố
-        const relatedLevel4Categories = await databaseService.categories
+        // Bước 5: Lấy danh sách sản phẩm từ các danh mục liên quan
+        console.log('Step 5: Fetching products for related category IDs:', relatedLevelIds);
+        const products = await databaseService.productSPUs
             .find({
-                category_path: { $regex: `^${pathPrefix}` },
-                level: 4,
+                product_category: { $in: relatedLevelIds },
+                isPublished: true,
+                isDeleted: false,
+            })
+            .project({
+                product_name: 1,
+                product_thumb: 1,
+                product_price: 1,
             })
             .toArray();
+        console.log('Fetched products:', products);
 
-        // Lấy danh sách _id của các danh mục cấp 4 liên quan
-        const relatedLevel4Ids = relatedLevel4Categories.map((cat) => cat._id);
-
-        // Lấy tất cả sản phẩm thuộc các danh mục cấp 4 này
-        const products = await databaseService.products
-            .find({
-                product_category: { $in: relatedLevel4Ids },
-                isPublished: true, // Giả sử có trường isPublished để lọc sản phẩm hợp lệ
-                isDeleted: false, // Giả sử có trường isDeleted
-            })
-            .toArray();
-
-        // Trả về danh sách sản phẩm cùng với thông tin danh mục nhánh
-        return {
+        // Bước 6: Trả về kết quả
+        console.log('Step 6: Returning result');
+        const result = {
             category: category,
-            relatedCategories: relatedLevel4Categories,
+            relatedCategories: relatedCategories,
             products: products,
         };
+        console.log('Final result:', result);
+        return result;
     }
 }
 const categoriesService = new CategoriesService()

@@ -168,40 +168,40 @@ async function createIndexes(options: { force?: boolean } = {}) {
 
             // Product Indexes
             {
-                key: { product_shop: 1, isPublished: 1 },
+                key: { product_shop: 1, isPublished: 1, isDeleted: 1 },
                 options: { background: true },
-                collection: 'products',
-                name: 'products_shop_published',
+                collection: 'product_spu',
+                name: 'product_spu_shop_published_deleted',
             },
             {
-                key: { product_name: 'text', product_description: 'text' },
+                key: { product_shop: 1, isPublished: 1, isDeleted: 1, sold_quantity: -1 },
                 options: { background: true },
-                collection: 'products',
-                name: 'products_text_search',
+                collection: 'product_spu',
+                name: 'product_spu_shop_published_deleted_sold_quantity',
             },
             {
-                key: { product_price: 1 },
+                key: { product_shop: 1, isPublished: 1, isDeleted: 1, created_at: -1 },
                 options: { background: true },
-                collection: 'products',
-                name: 'products_price',
+                collection: 'product_spu',
+                name: 'product_spu_shop_published_deleted_created_at',
             },
             {
-                key: { product_type: 1 },
+                key: { product_shop: 1, isPublished: 1, isDeleted: 1, product_price: 1 },
                 options: { background: true },
-                collection: 'products',
-                name: 'products_type',
+                collection: 'product_spu',
+                name: 'product_spu_shop_published_deleted_price_asc',
+            },
+            {
+                key: { product_shop: 1, isPublished: 1, isDeleted: 1, product_price: -1 },
+                options: { background: true },
+                collection: 'product_spu',
+                name: 'product_spu_shop_published_deleted_price_desc',
             },
             {
                 key: { product_slug: 1 },
                 options: { background: true, unique: true },
-                collection: 'products',
-                name: 'products_slug_unique',
-            },
-            {
-                key: { created_at: -1 },
-                options: { background: true },
-                collection: 'products',
-                name: 'products_created_at',
+                collection: 'product_spu',
+                name: 'product_spu_slug_unique',
             },
 
             // Orders Indexes
