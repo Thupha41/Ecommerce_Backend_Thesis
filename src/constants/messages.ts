@@ -365,7 +365,8 @@ export const SHOP_MESSAGES = {
   SHOP_BANNER_MUST_BE_A_STRING: 'Shop banner must be a string',
   SHOP_BANNER_IS_INVALID: 'Shop banner is invalid',
   SHOP_NAME_ALREADY_EXISTS: 'Shop name already exists',
-  SHOP_HOTLINE_PHONE_ALREADY_EXISTS: 'Shop hotline phone already exists'
+  SHOP_HOTLINE_PHONE_ALREADY_EXISTS: 'Shop hotline phone already exists',
+  GET_SHOP_PRODUCTS_SUCCESS: 'Get shop products successfully'
 } as const
 
 export const AUTH_MESSAGES = {

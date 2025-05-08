@@ -47,7 +47,7 @@ export const sendFileFromS3 = async (res: Response, filepath: string) => {
       Bucket: envConfig.s3BucketName,
       Key: filepath
     })
-    ;(data.Body as any).pipe(res)
+      ; (data.Body as any).pipe(res)
   } catch (error) {
     res.status(HTTP_STATUS.NOT_FOUND).send('Not found')
   }

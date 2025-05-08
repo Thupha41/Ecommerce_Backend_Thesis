@@ -8,7 +8,8 @@ import {
   SearchProductReqParams,
   GetAllProductsReqQuery,
   ShopProductReqBody,
-  FindAllProductsParams
+  FindAllProductsParams,
+  CreateProductSPUReqBody
 } from '~/models/requests/products.requests'
 import { TokenPayload } from '~/models/requests/users.requests'
 import { PRODUCTS_MESSAGES } from '~/constants/messages'
@@ -23,6 +24,32 @@ import { MediaType } from '~/constants/enums'
 import { envConfig } from '~/constants/config'
 import { uploadFileToS3 } from '~/utils/s3'
 import { CompleteMultipartUploadCommandOutput } from '@aws-sdk/client-s3'
+import productsSPUService from '~/services/products_spu.services'
+
+export const createProductSPUController = async (req: Request<ParamsDictionary, any, CreateProductSPUReqBody>, res: Response, next: NextFunction) => {
+  const { user_id } = req.decoded_authorization as TokenPayload
+
+  const result = await productsSPUService.createProductSPU(user_id, req.body as CreateProductSPUReqBody)
+  res.json({
+    message: PRODUCTS_MESSAGES.CREATE_PRODUCT_SUCCESS,
+    result
+  })
+  return
+}
+
+export const getProductSPUWithVariantsController = async (
+  req: Request<ProductDetailReqParams>,
+  res: Response,
+  next: NextFunction
+) => {
+  const { product_id } = req.params
+
+  const result = await productsSPUService.getProductSPUWithVariants(product_id)
+  res.json({
+    message: PRODUCTS_MESSAGES.GET_PRODUCT_DETAIL_SUCCESS,
+    result
+  })
+}
 
 export const createProductController = async (
   req: Request<ParamsDictionary, any, CreateProductReqBody>,

@@ -535,7 +535,7 @@ class ProductFactory {
         'isDraft',
         'isPublished',
         '_id',
-        'product_type'
+        'product_category'
       ]
     })
   }
