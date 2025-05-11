@@ -1,10 +1,15 @@
-import { Router } from 'express';
-import { wrapRequestHandler } from '~/utils/handlers';
-import reviewsController from '~/controllers/reviews.controllers';
-import { accessTokenValidator } from '~/middlewares/users.middlewares';
-import { createReviewValidator, handleReviewMediaUpload, updateReviewValidator, validateReviewIdParam } from '~/middlewares/reviews.middlewares';
+import { Router } from 'express'
+import { wrapRequestHandler } from '~/utils/handlers'
+import reviewsController from '~/controllers/reviews.controllers'
+import { accessTokenValidator } from '~/middlewares/users.middlewares'
+import {
+  createReviewValidator,
+  handleReviewMediaUpload,
+  updateReviewValidator,
+  validateReviewIdParam
+} from '~/middlewares/reviews.middlewares'
 
-const reviewsRouter = Router();
+const reviewsRouter = Router()
 
 /**
  * Description: Handle create a new review
@@ -21,12 +26,12 @@ const reviewsRouter = Router();
  * }
  */
 reviewsRouter.post(
-    '/',
-    accessTokenValidator,
-    handleReviewMediaUpload,
-    createReviewValidator,
-    wrapRequestHandler(reviewsController.createReviewController)
-);
+  '/',
+  accessTokenValidator,
+  handleReviewMediaUpload,
+  createReviewValidator,
+  wrapRequestHandler(reviewsController.createReviewController)
+)
 
 /**
  * Description: Handle get reviews for a product
@@ -34,10 +39,7 @@ reviewsRouter.post(
  * Method: GET
  * Access: Public
  */
-reviewsRouter.get(
-    '/product/:productId',
-    wrapRequestHandler(reviewsController.getReviewsController)
-);
+reviewsRouter.get('/product/:productId', wrapRequestHandler(reviewsController.getReviewsController))
 
 /**
  * Description: Handle get reviews for a shop
@@ -45,10 +47,7 @@ reviewsRouter.get(
  * Method: GET
  * Access: Public
  */
-reviewsRouter.get(
-    '/shop/:shopId',
-    wrapRequestHandler(reviewsController.getShopReviewsController)
-);
+reviewsRouter.get('/shop/:shopId', wrapRequestHandler(reviewsController.getShopReviewsController))
 
 /**
  * Description: Handle update a review
@@ -66,13 +65,13 @@ reviewsRouter.get(
  * }
  */
 reviewsRouter.put(
-    '/:reviewId',
-    accessTokenValidator,
-    validateReviewIdParam,
-    handleReviewMediaUpload,
-    updateReviewValidator,
-    wrapRequestHandler(reviewsController.updateReviewController)
-);
+  '/:reviewId',
+  accessTokenValidator,
+  validateReviewIdParam,
+  handleReviewMediaUpload,
+  updateReviewValidator,
+  wrapRequestHandler(reviewsController.updateReviewController)
+)
 
 /**
  * Description: Handle delete a review
@@ -81,9 +80,9 @@ reviewsRouter.put(
  * Access: Private
  */
 reviewsRouter.delete(
-    '/:reviewId',
-    accessTokenValidator,
-    validateReviewIdParam,
-    wrapRequestHandler(reviewsController.deleteReviewController)
-);
-export default reviewsRouter;
+  '/:reviewId',
+  accessTokenValidator,
+  validateReviewIdParam,
+  wrapRequestHandler(reviewsController.deleteReviewController)
+)
+export default reviewsRouter

@@ -3,7 +3,13 @@ import { File, Fields } from 'formidable'
 import fs from 'fs'
 import path from 'path'
 import formidable from 'formidable'
-import { UPLOAD_IMAGE_TEMP_DIR, UPLOAD_VIDEO_DIR, UPLOAD_VIDEO_TEMP_DIR, UPLOAD_CATEGORY_MEDIA_DIR, UPLOAD_PRODUCT_MEDIA_DIR } from '~/constants/dir'
+import {
+  UPLOAD_IMAGE_TEMP_DIR,
+  UPLOAD_VIDEO_DIR,
+  UPLOAD_VIDEO_TEMP_DIR,
+  UPLOAD_CATEGORY_MEDIA_DIR,
+  UPLOAD_PRODUCT_MEDIA_DIR
+} from '~/constants/dir'
 
 interface UploadImageOptions {
   uploadDir?: string
@@ -20,19 +26,21 @@ interface UploadImageResult {
 }
 
 export const initFolder = () => {
-  ;[UPLOAD_IMAGE_TEMP_DIR, UPLOAD_VIDEO_TEMP_DIR, UPLOAD_CATEGORY_MEDIA_DIR, UPLOAD_PRODUCT_MEDIA_DIR].forEach((dir) => {
-    if (!fs.existsSync(dir)) {
-      fs.mkdirSync(dir, {
-        recursive: true // mục đích là để tạo folder nested
-      })
+  ;[UPLOAD_IMAGE_TEMP_DIR, UPLOAD_VIDEO_TEMP_DIR, UPLOAD_CATEGORY_MEDIA_DIR, UPLOAD_PRODUCT_MEDIA_DIR].forEach(
+    (dir) => {
+      if (!fs.existsSync(dir)) {
+        fs.mkdirSync(dir, {
+          recursive: true // mục đích là để tạo folder nested
+        })
+      }
     }
-  })
+  )
 
   // Create level subdirectories for categories (1-4)
   for (let i = 1; i <= 4; i++) {
-    const levelDir = path.resolve(UPLOAD_CATEGORY_MEDIA_DIR, `level_${i}`);
+    const levelDir = path.resolve(UPLOAD_CATEGORY_MEDIA_DIR, `level_${i}`)
     if (!fs.existsSync(levelDir)) {
-      fs.mkdirSync(levelDir, { recursive: true });
+      fs.mkdirSync(levelDir, { recursive: true })
     }
   }
 
@@ -41,13 +49,13 @@ export const initFolder = () => {
     path.resolve(UPLOAD_PRODUCT_MEDIA_DIR, 'product_thumb'),
     path.resolve(UPLOAD_PRODUCT_MEDIA_DIR, 'product_media'),
     path.resolve(UPLOAD_PRODUCT_MEDIA_DIR, 'variants')
-  ];
+  ]
 
-  productDirs.forEach(dir => {
+  productDirs.forEach((dir) => {
     if (!fs.existsSync(dir)) {
-      fs.mkdirSync(dir, { recursive: true });
+      fs.mkdirSync(dir, { recursive: true })
     }
-  });
+  })
 }
 
 export const handleUploadImage = async (req: Request, options: UploadImageOptions = {}) => {
@@ -219,80 +227,83 @@ export const handleUploadProductMedia = async (req: Request): Promise<any> => {
       keepExtensions: true,
       maxFileSize: 20 * 1024 * 1024, // Increase to 20MB per file
       maxTotalFileSize: 50 * 1024 * 1024 // Add 50MB total file size limit
-    });
+    })
 
     form.parse(req, (err, fields, files) => {
       if (err) {
-        return reject(err);
+        return reject(err)
       }
 
       // Convert files to the format expected by the middleware
-      const results: any = { fields };
+      const results: any = { fields }
 
       // Copy all file arrays from 'files' to 'results'
-      Object.keys(files).forEach(key => {
+      Object.keys(files).forEach((key) => {
         // Check if it's a single file or multiple files
-        const file = files[key];
+        const file = files[key]
         if (Array.isArray(file)) {
-          results[key] = file;
+          results[key] = file
         } else {
           // Wrap single file in an array to maintain consistency
-          results[key] = [file];
+          results[key] = [file]
         }
 
         // Special handling for SKU images with array notation
-        const skuImageMatch = key.match(/^sku_list\[(\d+)\]\[sku_image\]$/);
+        const skuImageMatch = key.match(/^sku_list\[(\d+)\]\[sku_image\]$/)
         if (skuImageMatch) {
-          const skuIndex = skuImageMatch[1];
+          const skuIndex = skuImageMatch[1]
           // Also add entry with simpler key format for easier handling
-          results[`sku_image_${skuIndex}`] = results[key];
-          console.log(`Mapped ${key} to sku_image_${skuIndex}`);
+          results[`sku_image_${skuIndex}`] = results[key]
+          console.log(`Mapped ${key} to sku_image_${skuIndex}`)
         }
-      });
+      })
 
       // Log the keys in results for debugging
-      console.log('Available file keys in handleUploadProductMedia:', Object.keys(results).filter(k => k !== 'fields'));
+      console.log(
+        'Available file keys in handleUploadProductMedia:',
+        Object.keys(results).filter((k) => k !== 'fields')
+      )
 
-      resolve(results);
-    });
-  });
-};
+      resolve(results)
+    })
+  })
+}
 
 export const ensureDirectoryExists = (dirPath: string) => {
   if (!fs.existsSync(dirPath)) {
-    fs.mkdirSync(dirPath, { recursive: true });
+    fs.mkdirSync(dirPath, { recursive: true })
   }
-  return dirPath;
+  return dirPath
 }
 
 export const extractFieldsFromFormidable = (formidableResult: any) => {
   const extractedFields: any = {
     textFields: {},
     fileFields: {}
-  };
+  }
 
   if (!formidableResult || typeof formidableResult !== 'object') {
-    return extractedFields;
+    return extractedFields
   }
 
   // Extract all keys that are not fields, product_thumb, or product_media
   for (const key in formidableResult) {
     if (key === 'fields') {
-      extractedFields.rawFields = formidableResult[key];
+      extractedFields.rawFields = formidableResult[key]
     } else if (key === 'product_thumb' || key === 'product_media') {
-      extractedFields.fileFields[key] = formidableResult[key];
+      extractedFields.fileFields[key] = formidableResult[key]
     } else {
       // Check if it's a file field for SKU images
-      const skuImageMatch = key.match(/^sku_list\[(\d+)\]\[sku_image\]$/);
+      const skuImageMatch = key.match(/^sku_list\[(\d+)\]\[sku_image\]$/)
       if (skuImageMatch) {
-        const skuIndex = skuImageMatch[1];
-        extractedFields.fileFields[key] = formidableResult[key];
-        extractedFields.fileFields[`sku_image_${skuIndex}`] = formidableResult[key];
+        const skuIndex = skuImageMatch[1]
+        extractedFields.fileFields[key] = formidableResult[key]
+        extractedFields.fileFields[`sku_image_${skuIndex}`] = formidableResult[key]
       } else {
-        extractedFields.fileFields[key] = formidableResult[key];
+        extractedFields.fileFields[key] = formidableResult[key]
       }
     }
   }
 
-  return extractedFields;
+  return extractedFields
 }

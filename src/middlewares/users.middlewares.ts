@@ -270,18 +270,18 @@ export const accessTokenValidator = validate(
             // Check if path is in non-secure paths with action consideration
             for (const nonSecurePath of nonSecurePaths) {
               // Simple path matching
-              const pathMatches = isPathMatch(nonSecurePath.path, req.path);
+              const pathMatches = isPathMatch(nonSecurePath.path, req.path)
 
               // If path matches and either no actions are specified or it's a GET request (read)
               if (pathMatches && (!nonSecurePath.actions || req.method === 'GET')) {
-                return true;
+                return true
               }
             }
 
             const access_token = (value || '').split(' ')[1]
             const decoded = await verifyAccessToken(access_token, req as Request)
             console.log('>>> check decoded', JSON.stringify(decoded, null, 2))
-              ; (req as Request).decoded_authorization = decoded
+            ;(req as Request).decoded_authorization = decoded
           }
         }
       }
@@ -294,35 +294,35 @@ export const accessTokenValidator = validate(
 function isPathMatch(pattern: string, path: string): boolean {
   try {
     // Split the pattern and path into segments
-    const patternSegments = pattern.split('/').filter(Boolean);
-    const pathSegments = path.split('/').filter(Boolean);
+    const patternSegments = pattern.split('/').filter(Boolean)
+    const pathSegments = path.split('/').filter(Boolean)
 
     // If the number of segments differs, they can't match
     if (patternSegments.length !== pathSegments.length) {
-      return false;
+      return false
     }
 
     // Check each segment
     for (let i = 0; i < patternSegments.length; i++) {
-      const patternSeg = patternSegments[i];
-      const pathSeg = pathSegments[i];
+      const patternSeg = patternSegments[i]
+      const pathSeg = pathSegments[i]
 
       // If pattern segment starts with :, it's a parameter and matches anything
       if (patternSeg.startsWith(':')) {
-        continue;
+        continue
       }
 
       // Otherwise, the segments should match exactly
       if (patternSeg !== pathSeg) {
-        return false;
+        return false
       }
     }
 
     // All segments matched
-    return true;
+    return true
   } catch (error) {
-    console.error('Path matching error:', error);
-    return false;
+    console.error('Path matching error:', error)
+    return false
   }
 }
 
@@ -350,7 +350,7 @@ export const refreshTokenValidator = validate(
                   status: HTTP_STATUS.UNAUTHORIZED
                 })
               }
-              ; (req as Request).decoded_refresh_token = decoded_refresh_token
+              ;(req as Request).decoded_refresh_token = decoded_refresh_token
             } catch (error) {
               if (error instanceof JsonWebTokenError) {
                 throw new ErrorWithStatus({

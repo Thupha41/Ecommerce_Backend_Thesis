@@ -207,7 +207,10 @@ export const CARTS_MESSAGES = {
   CART_NOT_FOUND: 'Cart not found',
   INVALID_CART_ITEM: 'Invalid cart item',
   PRODUCT_NOT_IN_CART: 'Product not in cart',
-  INVALID_CART_ID: 'Invalid cart id'
+  INVALID_CART_ID: 'Invalid cart id',
+  UPDATE_CART_FAILED: 'Failed to update cart',
+  QUANTITY_MUST_BE_GREATER_THAN_ZERO: 'Quantity must be greater than zero',
+  OLD_QUANTITY_MISMATCH: 'Old quantity does not match current cart quantity'
 } as const
 
 export const SELLER_MESSAGES = {
@@ -407,7 +410,7 @@ export const REVIEWS_MESSAGES = {
   MEDIA_ITEM_MUST_BE_A_STRING: 'Media item must be a string',
   MEDIA_LENGTH_MUST_BE_LESS_THAN_5: 'Media length must be less than 5',
   IS_ANONYMOUS_MUST_BE_A_BOOLEAN: 'Is anonymous must be a boolean',
-  STATUS_MUST_BE_VALID: 'Status must be valid',
+  STATUS_MUST_BE_VALID: 'Status must be valid'
 } as const
 
 export const CATEGORIES_MESSAGES = {
@@ -429,5 +432,6 @@ export const CATEGORIES_MESSAGES = {
   GET_CATEGORY_SUCCESS: 'Get category successfully',
   GET_CATEGORIES_SUCCESS: 'Get categories successfully',
   GET_CHILDREN_CATEGORIES_SUCCESS: 'Get children categories successfully',
-  GET_PRODUCTS_BY_HIERARCHY_SUCCESS: 'Get products by hierarchy successfully'
+  GET_PRODUCTS_BY_HIERARCHY_SUCCESS: 'Get products by hierarchy successfully',
+  GET_CATEGORY_BY_NAME_SUCCESS: 'Get category by name successfully'
 } as const

@@ -208,18 +208,18 @@ class ProductRepository {
         // Only add nested properties if the result is not empty
         if (Object.keys(res).length > 0) {
           Object.keys(res).forEach((resKey) => {
-            ; (final as Record<string, unknown>)[`${key}.${resKey}`] = res[resKey as keyof typeof res]
+            ;(final as Record<string, unknown>)[`${key}.${resKey}`] = res[resKey as keyof typeof res]
           })
         }
       } else {
-        ; (final as Record<string, unknown>)[key] = cleanObj[key as keyof ProductUpdateReqBody]
+        ;(final as Record<string, unknown>)[key] = cleanObj[key as keyof ProductUpdateReqBody]
       }
     })
     console.log(`[3]`, final)
     return final
   }
   getProductById = async (productId: string) => {
-    return await this.products.findOne({
+    return await this.productSPUs.findOne({
       _id: new ObjectId(productId)
     })
   }

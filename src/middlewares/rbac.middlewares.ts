@@ -29,38 +29,38 @@ const mapMethodToAction = (method: string) => {
 const isPathMatch = (pattern: string, path: string): boolean => {
   try {
     // Split the pattern and path into segments
-    const patternSegments = pattern.split('/').filter(Boolean);
-    const pathSegments = path.split('/').filter(Boolean);
+    const patternSegments = pattern.split('/').filter(Boolean)
+    const pathSegments = path.split('/').filter(Boolean)
 
     // If the number of segments differs, they can't match
     if (patternSegments.length !== pathSegments.length) {
       // console.log(`Path length mismatch: ${pattern} (${patternSegments.length}) vs ${path} (${pathSegments.length})`);
-      return false;
+      return false
     }
 
     // Check each segment
     for (let i = 0; i < patternSegments.length; i++) {
-      const patternSeg = patternSegments[i];
-      const pathSeg = pathSegments[i];
+      const patternSeg = patternSegments[i]
+      const pathSeg = pathSegments[i]
 
       // If pattern segment starts with :, it's a parameter and matches anything
       if (patternSeg.startsWith(':')) {
-        continue;
+        continue
       }
 
       // Otherwise, the segments should match exactly
       if (patternSeg !== pathSeg) {
         // console.log(`Segment mismatch at position ${i}: ${patternSeg} vs ${pathSeg}`);
-        return false;
+        return false
       }
     }
 
-    console.log(`Path match found: ${pattern} matches ${path}`);
+    console.log(`Path match found: ${pattern} matches ${path}`)
     // All segments matched
-    return true;
+    return true
   } catch (error) {
-    console.error('Path matching error:', error);
-    return false;
+    console.error('Path matching error:', error)
+    return false
   }
 }
 
@@ -78,9 +78,7 @@ export const checkUserPermission = (req: Request, res: Response, next: NextFunct
       }
 
       // Check if any of the request actions are in the allowed non-secure actions
-      const isActionAllowed = requestActions.some(action =>
-        nonSecurePath.actions?.includes(action)
-      )
+      const isActionAllowed = requestActions.some((action) => nonSecurePath.actions?.includes(action))
 
       if (isActionAllowed) {
         return next()

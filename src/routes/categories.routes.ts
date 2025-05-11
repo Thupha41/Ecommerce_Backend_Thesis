@@ -1,20 +1,18 @@
-import { Router } from 'express';
-import { wrapRequestHandler } from '~/utils/handlers';
+import { Router } from 'express'
+import { wrapRequestHandler } from '~/utils/handlers'
 import {
-    createCategoryController,
-    updateCategoryController,
-    deleteCategoryController,
-    getCategoryByIdController,
-    getCategoriesByLevelController,
-    getChildrenCategoriesController,
-    getProductsByCategoryHierarchyController
-} from '~/controllers/categories.controllers';
-import {
-    handleCategoryMediaUpload,
-    createCategoryValidator
-} from '~/middlewares/categories.middlewares';
+  createCategoryController,
+  updateCategoryController,
+  deleteCategoryController,
+  getCategoryByIdController,
+  getCategoriesByLevelController,
+  getChildrenCategoriesController,
+  getProductsByCategoryHierarchyController,
+  getCategoryByNameController
+} from '~/controllers/categories.controllers'
+import { handleCategoryMediaUpload, createCategoryValidator } from '~/middlewares/categories.middlewares'
 
-const categoryRouter = Router();
+const categoryRouter = Router()
 
 /**
  * Description: Create category
@@ -23,11 +21,11 @@ const categoryRouter = Router();
  * Access: Private
  */
 categoryRouter.post(
-    '/',
-    handleCategoryMediaUpload,
-    createCategoryValidator,
-    wrapRequestHandler(createCategoryController)
-);
+  '/',
+  handleCategoryMediaUpload,
+  createCategoryValidator,
+  wrapRequestHandler(createCategoryController)
+)
 
 /**
  * Description: Get categories by level (1-4)
@@ -35,10 +33,7 @@ categoryRouter.post(
  * Method: GET
  * Access: Public
  */
-categoryRouter.get(
-    '/level/:level',
-    wrapRequestHandler(getCategoriesByLevelController)
-);
+categoryRouter.get('/level/:level', wrapRequestHandler(getCategoriesByLevelController))
 
 /**
  * Description: Get children categories by parent ID
@@ -46,10 +41,7 @@ categoryRouter.get(
  * Method: GET
  * Access: Public
  */
-categoryRouter.get(
-    '/children/:parentId',
-    wrapRequestHandler(getChildrenCategoriesController)
-);
+categoryRouter.get('/children/:parentId', wrapRequestHandler(getChildrenCategoriesController))
 
 /**
  * Description: Get products by category hierarchy
@@ -57,10 +49,7 @@ categoryRouter.get(
  * Method: GET
  * Access: Public
  */
-categoryRouter.get(
-    '/products/:categoryId',
-    wrapRequestHandler(getProductsByCategoryHierarchyController)
-);
+categoryRouter.get('/products/:categoryId', wrapRequestHandler(getProductsByCategoryHierarchyController))
 
 /**
  * Description: Update category
@@ -69,11 +58,11 @@ categoryRouter.get(
  * Access: Private
  */
 categoryRouter.put(
-    '/:categoryId',
-    handleCategoryMediaUpload,
-    createCategoryValidator,
-    wrapRequestHandler(updateCategoryController)
-);
+  '/:categoryId',
+  handleCategoryMediaUpload,
+  createCategoryValidator,
+  wrapRequestHandler(updateCategoryController)
+)
 
 /**
  * Description: Delete category
@@ -81,10 +70,7 @@ categoryRouter.put(
  * Method: DELETE
  * Access: Private
  */
-categoryRouter.delete(
-    '/:categoryId',
-    wrapRequestHandler(deleteCategoryController)
-);
+categoryRouter.delete('/:categoryId', wrapRequestHandler(deleteCategoryController))
 
 /**
  * Description: Get category by ID
@@ -92,9 +78,14 @@ categoryRouter.delete(
  * Method: GET
  * Access: Public
  */
-categoryRouter.get(
-    '/:categoryId',
-    wrapRequestHandler(getCategoryByIdController)
-);
+categoryRouter.get('/:categoryId', wrapRequestHandler(getCategoryByIdController))
 
-export default categoryRouter; 
+/**
+ * Description: Get category by name
+ * Path: /name/:categoryName
+ * Method: GET
+ * Access: Public
+ */
+categoryRouter.get('/name/:categoryName', wrapRequestHandler(getCategoryByNameController))
+
+export default categoryRouter

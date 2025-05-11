@@ -115,18 +115,18 @@ const shopHotlinePhoneSchema: ParamSchema = {
 }
 
 const shopLogoSchema: ParamSchema = {
-  notEmpty: {
-    errorMessage: SHOP_MESSAGES.SHOP_LOGO_IS_REQUIRED
-  },
+  // notEmpty: {
+  //   errorMessage: SHOP_MESSAGES.SHOP_LOGO_IS_REQUIRED
+  // },
   isURL: {
     errorMessage: SHOP_MESSAGES.SHOP_LOGO_IS_INVALID
   }
 }
 
 const shopBannerSchema: ParamSchema = {
-  notEmpty: {
-    errorMessage: SHOP_MESSAGES.SHOP_BANNER_IS_REQUIRED
-  },
+  // notEmpty: {
+  //   errorMessage: SHOP_MESSAGES.SHOP_BANNER_IS_REQUIRED
+  // },
   isURL: {
     errorMessage: SHOP_MESSAGES.SHOP_BANNER_IS_INVALID
   }
