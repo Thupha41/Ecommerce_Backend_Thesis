@@ -26,7 +26,11 @@ import { uploadFileToS3 } from '~/utils/s3'
 import { CompleteMultipartUploadCommandOutput } from '@aws-sdk/client-s3'
 import productsSPUService from '~/services/products_spu.services'
 
-export const createProductSPUController = async (req: Request<ParamsDictionary, any, CreateProductSPUReqBody>, res: Response, next: NextFunction) => {
+export const createProductSPUController = async (
+  req: Request<ParamsDictionary, any, CreateProductSPUReqBody>,
+  res: Response,
+  next: NextFunction
+) => {
   const { user_id } = req.decoded_authorization as TokenPayload
 
   const result = await productsSPUService.createProductSPU(user_id, req.body as CreateProductSPUReqBody)

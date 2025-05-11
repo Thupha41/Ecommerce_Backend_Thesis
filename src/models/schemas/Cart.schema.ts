@@ -8,6 +8,8 @@ export interface ICartProduct {
   name?: string
   shopId?: ObjectId
   product_thumb?: string
+  sku_id?: ObjectId
+  variants?: Array<{ name: string; value: string }>
 }
 export interface ICartType {
   _id?: ObjectId

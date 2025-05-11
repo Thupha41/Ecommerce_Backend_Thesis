@@ -1,12 +1,12 @@
 import { Router } from 'express'
 import { wrapRequestHandler } from '~/utils/handlers'
 import {
-  addToCart,
-  updateCart,
+  addToCartController,
   deleteUserCart,
   getListCart,
   decreaseCartItem,
-  increaseCartItem
+  increaseCartItem,
+  updateCartController
 } from '~/controllers/carts.controllers'
 const cartRouter = Router()
 import { accessTokenValidator } from '~/middlewares/users.middlewares'
@@ -18,15 +18,15 @@ cartRouter.use(accessTokenValidator)
  * Method: POST
  * Body: {userId: string, product: ICartProduct}
  */
-cartRouter.post('/', wrapRequestHandler(addToCart))
+cartRouter.post('/', wrapRequestHandler(addToCartController))
 
 /**
- * Description: Update cart
- * Path: /update
- * Method: POST
- * Body: {userId: string, shop_order_ids: {shopId: string, item_products: {productId: string, quantity: number, old_quantity: number}[]}}
+ * Description: Exact update of cart item quantity
+ * Path: /exact-update
+ * Method: PUT
+ * Body: {product: {product_id: string, product_quantity: number, old_quantity: number, shopId: string, sku_id?: string}}
  */
-cartRouter.post('/update', wrapRequestHandler(updateCart))
+cartRouter.put('/update', wrapRequestHandler(updateCartController))
 
 //authentication
 // cartRouter.use(accessTokenValidator)
@@ -35,7 +35,8 @@ cartRouter.post('/update', wrapRequestHandler(updateCart))
  * Description: Delete user cart
  * Path: /
  * Method: DELETE
- * Body: {userId: string, productId: string}
+ * Body: {userId: string, productId: string, sku_id?: string}
+ * Note: sku_id is required for variant products to delete specific variants
  */
 cartRouter.delete('/', wrapRequestHandler(deleteUserCart))
 
@@ -52,6 +53,7 @@ cartRouter.get('/', wrapRequestHandler(getListCart))
  * Path: /increase/:productId
  * Method: PUT
  * params: productId
+ * query: sku_id (optional - for variant products)
  */
 cartRouter.put('/increase/:productId', wrapRequestHandler(increaseCartItem))
 
@@ -60,6 +62,7 @@ cartRouter.put('/increase/:productId', wrapRequestHandler(increaseCartItem))
  * Path: /decrease/:productId
  * Method: PUT
  * params: productId
+ * query: sku_id (optional - for variant products)
  */
 cartRouter.put('/decrease/:productId', wrapRequestHandler(decreaseCartItem))
 export default cartRouter
