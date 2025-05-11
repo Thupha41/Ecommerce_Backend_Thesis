@@ -25,12 +25,10 @@ class CartRepository {
     // Nếu có variant nhưng chưa có sku_id, cần trả về danh sách variants để frontend hiển thị modal
     if (hasVariants && !product.sku_id) {
       // Lấy danh sách variants của sản phẩm
-      const skus = await databaseService.productSKUs
-        .find({
-          product_id: new ObjectId(product.product_id),
-          isDeleted: false
-        })
-        .toArray()
+      const skus = await databaseService.productSKUs.find({
+        product_id: new ObjectId(product.product_id),
+        isDeleted: false
+      }).toArray();
 
       return {
         requireVariantSelection: true,
@@ -61,32 +59,32 @@ class CartRepository {
           throw new ErrorWithStatus({
             message: `Product variant is out of stock. Only ${sku.sku_stock} available.`,
             status: HTTP_STATUS.BAD_REQUEST
-          })
+          });
         }
 
         // Lấy thông tin thuộc tính từ tier_index của SKU
         if (sku.sku_tier_idx && foundProduct.product_variations) {
           // Tạo mảng variants từ tier_idx và product_variations
           variants = sku.sku_tier_idx.map((idx, i) => {
-            const variation = foundProduct.product_variations[i]
+            const variation = foundProduct.product_variations[i];
             return {
               name: variation.name,
               value: variation.options[idx]
-            }
-          })
+            };
+          });
         }
       }
     } else {
       // Kiểm tra tồn kho của sản phẩm không có variant
       const inventory = await databaseService.inventories.findOne({
         inventory_productId: new ObjectId(product.product_id)
-      })
+      });
 
       if (inventory && inventory.inventory_stock < (product.product_quantity || 1)) {
         throw new ErrorWithStatus({
           message: `Product is out of stock. Only ${inventory.inventory_stock} available.`,
           status: HTTP_STATUS.BAD_REQUEST
-        })
+        });
       }
     }
 
@@ -145,12 +143,10 @@ class CartRepository {
     // Nếu có variant nhưng chưa có sku_id, cần trả về danh sách variants cho frontend hiển thị
     if (hasVariants && !product.sku_id) {
       // Lấy danh sách variants của sản phẩm
-      const skus = await databaseService.productSKUs
-        .find({
-          product_id: new ObjectId(product.product_id),
-          isDeleted: false
-        })
-        .toArray()
+      const skus = await databaseService.productSKUs.find({
+        product_id: new ObjectId(product.product_id),
+        isDeleted: false
+      }).toArray();
 
       return {
         requireVariantSelection: true,
@@ -177,38 +173,38 @@ class CartRepository {
           productThumb = sku.sku_image
         }
 
-        actualStock = sku.sku_stock
+        actualStock = sku.sku_stock;
 
         // Tạo thông tin variants nếu có
         if (sku.sku_tier_idx && foundProduct.product_variations) {
           variants = sku.sku_tier_idx.map((idx, i) => {
-            const variation = foundProduct.product_variations[i]
+            const variation = foundProduct.product_variations[i];
             return {
               name: variation.name,
               value: variation.options[idx]
-            }
-          })
+            };
+          });
         }
       } else {
         throw new ErrorWithStatus({
           message: 'Product variant not found',
           status: HTTP_STATUS.NOT_FOUND
-        })
+        });
       }
     } else {
       // Kiểm tra tồn kho tổng của sản phẩm
       const inventory = await databaseService.inventories.findOne({
         inventory_productId: new ObjectId(product_id)
-      })
+      });
 
       if (!inventory) {
         throw new ErrorWithStatus({
           message: 'Product inventory not found',
           status: HTTP_STATUS.NOT_FOUND
-        })
+        });
       }
 
-      actualStock = inventory.inventory_stock
+      actualStock = inventory.inventory_stock;
     }
 
     // Get current cart to check existing quantity
@@ -218,15 +214,16 @@ class CartRepository {
     })
 
     // Tìm sản phẩm trong giỏ hàng hiện tại
-    const existingProduct = existingCart?.cart_products.find((p) => {
+    const existingProduct = existingCart?.cart_products.find(p => {
       if (sku_id) {
         // So sánh cả product_id và sku_id
-        return p.product_id.toString() === product_id && p.sku_id?.toString() === sku_id.toString()
+        return p.product_id.toString() === product_id &&
+          p.sku_id?.toString() === sku_id.toString();
       } else {
         // Chỉ so sánh product_id nếu không có variant
-        return p.product_id.toString() === product_id && !p.sku_id
+        return p.product_id.toString() === product_id && !p.sku_id;
       }
-    })
+    });
 
     // Calculate the new total quantity after this update
     const currentQuantity = existingProduct?.product_quantity || 0
@@ -240,7 +237,7 @@ class CartRepository {
       throw new ErrorWithStatus({
         message: `Product is out of stock. Only ${actualStock} available.`,
         status: HTTP_STATUS.BAD_REQUEST
-      })
+      });
     }
 
     // Chuyển đổi chuỗi sang ObjectId
@@ -269,14 +266,12 @@ class CartRepository {
             cart_total_price: product_quantity * product_price
           },
           // Thêm cập nhật variants nếu cần
-          ...(variants
-            ? {
-                $set: {
-                  'cart_products.$.variants': variants,
-                  'cart_products.$.product_thumb': productThumb
-                }
-              }
-            : {})
+          ...(variants ? {
+            $set: {
+              'cart_products.$.variants': variants,
+              'cart_products.$.product_thumb': productThumb
+            }
+          } : {})
         },
         { returnDocument: ReturnDocument.AFTER }
       )
@@ -333,6 +328,7 @@ class CartRepository {
       return updated
     }
   }
+
 
   async findCartById(cartId: string) {
     const foundCart = await this.carts.findOne({

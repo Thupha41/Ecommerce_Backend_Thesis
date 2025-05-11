@@ -106,12 +106,58 @@ class CheckoutService {
     console.log('>>> validatedOrderItems', validatedOrderItems)
 
     // Update shop_order_ids with validated items that include product_thumb
-    const updatedShopOrderIds = validatedOrderItems.map((shop, index) => {
+    const updatedShopOrderIds = await Promise.all(validatedOrderItems.map(async (shop, index) => {
+      const originalShop = shop_order_ids[index];
+      const updatedItems = await Promise.all(shop.item_products.map(async (item) => {
+        // Lấy thông tin sản phẩm gốc để lấy name, product_thumb mặc định
+        const product = await databaseService.productSPUs.findOne({ _id: new ObjectId(item.productId) });
+        let baseProductThumb = product?.product_thumb || '';
+        let baseName = product?.product_name || '';
+        if (item && typeof item === 'object' && 'sku_id' in item && item.sku_id && typeof item.sku_id === 'string') {
+          // Lấy thông tin SKU
+          const sku = await databaseService.productSKUs.findOne({ _id: new ObjectId(item.sku_id) });
+          let variants = undefined;
+          let product_thumb = baseProductThumb;
+          if (sku) {
+            // Lấy variant
+            if (sku.sku_tier_idx && product && product.product_variations) {
+              variants = sku.sku_tier_idx.map((idx, i) => {
+                const variation = product.product_variations[i];
+                return {
+                  name: variation.name,
+                  value: variation.options[idx]
+                };
+              });
+            }
+            // Nếu có sku_image thì dùng làm product_thumb
+            if (sku.sku_image) {
+              product_thumb = sku.sku_image;
+            }
+            return {
+              price: item.price,
+              quantity: item.quantity,
+              productId: item.productId,
+              product_thumb: product_thumb,
+              name: baseName,
+              sku_id: item.sku_id,
+              variants: variants
+            };
+          }
+        }
+        // Không có sku_id, trả về định dạng chuẩn
+        return {
+          price: item.price,
+          quantity: item.quantity,
+          productId: item.productId,
+          product_thumb: baseProductThumb,
+          name: baseName
+        };
+      }));
       return {
-        ...shop_order_ids[index],
-        item_products: shop.item_products
-      }
-    })
+        ...originalShop,
+        item_products: updatedItems
+      };
+    }));
 
     //STEP 4: tinh tong tien bill
     const shop_order_ids_new = []

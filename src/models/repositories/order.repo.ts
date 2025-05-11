@@ -34,7 +34,7 @@ class OrderRepository {
 
         // Kiểm tra từng sản phẩm trong shop
         const validatedProducts = await Promise.all(
-          item_products.map(async (item: { productId: string; quantity: number; price: number }) => {
+          item_products.map(async (item: { productId: string; quantity: number; price: number; sku_id?: string }) => {
             // Tìm kiếm sản phẩm trong giỏ hàng
             const cartItem = foundCart.cart_products.find(
               (product) => product.product_id.toString() === item.productId && product.shopId?.toString() === shopId
@@ -47,14 +47,40 @@ class OrderRepository {
               })
             }
 
-            // Kiểm tra số lượng
-            if ((cartItem.product_quantity || 0) < item.quantity) {
-              throw new ErrorWithStatus({
-                message: `Quantity of product ${item.productId} exceeds what's in your cart`,
-                status: HTTP_STATUS.BAD_REQUEST
-              })
+            // Nếu có sku_id thì kiểm tra trong collection SKU
+            if ('sku_id' in item && item.sku_id) {
+              const sku = await databaseService.productSKUs.findOne({ _id: new ObjectId(item.sku_id) });
+              if (!sku) {
+                throw new ErrorWithStatus({
+                  message: `SKU ${item.sku_id} not found for product ${item.productId}`,
+                  status: HTTP_STATUS.BAD_REQUEST
+                })
+              }
+              // Kiểm tra giá
+              if (sku.sku_price !== item.price) {
+                throw new ErrorWithStatus({
+                  message: `Price of product ${item.productId} (SKU: ${item.sku_id}) has changed`,
+                  status: HTTP_STATUS.BAD_REQUEST
+                })
+              }
+              // Kiểm tra tồn kho
+              if (sku.sku_stock < item.quantity) {
+                throw new ErrorWithStatus({
+                  message: `Product ${item.productId} (SKU: ${item.sku_id}) is out of stock. Only ${sku.sku_stock} available.`,
+                  status: HTTP_STATUS.BAD_REQUEST
+                })
+              }
+              // Trả về thông tin SKU kèm productId
+              return {
+                ...sku,
+                productId: item.productId,
+                quantity: item.quantity,
+                price: sku.sku_price,
+                sku_id: item.sku_id
+              }
             }
 
+            // Nếu không có sku_id thì kiểm tra như cũ
             // Use productRepository.checkProductByServer to get product info
             const productInfo = await productRepository.checkProductByServer([
               {
