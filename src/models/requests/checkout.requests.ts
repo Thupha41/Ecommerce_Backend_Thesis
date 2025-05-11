@@ -10,6 +10,8 @@ export interface IShopOrderIds {
     quantity: number
     price: number
     productId: string
+    sku_id?: string
+    variants?: Array<{ name: string; value: string }>
     // product_thumb: string
   }[]
 }

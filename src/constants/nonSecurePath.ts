@@ -35,7 +35,12 @@ export const nonSecurePaths: NonSecurePathConfig[] = [
   { path: '/carts', actions: ['create'] },
   { path: '/carts', actions: ['read', 'read:any'] },
   { path: '/carts/update', actions: ['update'] },
-  { path: '/carts', actions: ['delete'] }
+  { path: '/carts', actions: ['delete'] },
+  { path: '/orders/checkout/checkout-review', actions: ['create'] },
+  { path: '/delivery-info', actions: ['create'] },
+  { path: '/delivery-info', actions: ['read', 'read:any'] },
+  { path: '/delivery-info', actions: ['update'] },
+  { path: '/delivery-info', actions: ['delete'] },
 ]
 
 // For backward compatibility, export just the paths as an array of strings
