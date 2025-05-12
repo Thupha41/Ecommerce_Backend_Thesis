@@ -4,6 +4,7 @@ import { ErrorWithStatus } from '~/models/Errors'
 import HTTP_STATUS from '~/constants/httpStatus'
 import checkoutService from './checkout.services'
 import { cartRepository } from '~/models/repositories/cart.repo'
+import cartService from './carts.services'
 import { Sort } from 'mongodb'
 import { SortDirection } from 'mongodb'
 import { ObjectId } from 'mongodb'
@@ -17,156 +18,209 @@ class OrderService {
     userId: string,
     { shop_order_ids, cartId, delivery_info, user_payment }: orderByUserRequestBody
   ) {
-    //check user exist
-    const user = await databaseService.users.findOne({
-      _id: new ObjectId(userId)
-    })
-    if (!user) {
-      throw new ErrorWithStatus({
-        message: USERS_MESSAGES.USER_NOT_FOUND,
-        status: HTTP_STATUS.NOT_FOUND
+    // Khởi tạo mảng để theo dõi khóa đã lấy được, cần giải phóng khi hoàn tất hoặc gặp lỗi
+    const acquiredLocks: string[] = [];
+
+    try {
+      //check user exist
+      const user = await databaseService.users.findOne({
+        _id: new ObjectId(userId)
       })
-    }
-
-    const checkoutReviewResult = await checkoutService.checkoutReview({
-      userId,
-      cartId,
-      shop_order_ids
-    })
-    // Kiểm tra và lấy dữ liệu từ kết quả
-    if (!checkoutReviewResult) {
-      throw new ErrorWithStatus({
-        message: 'Failed to process checkout review',
-        status: HTTP_STATUS.INTERNAL_SERVER_ERROR
-      })
-    }
-
-    const { shop_order_ids_new, checkout_order } = checkoutReviewResult
-
-    //check mot lan nua xem vuot ton kho hay khong
-    //get new array product
-    const products = shop_order_ids_new
-      .flatMap(
-        (order: {
-          shopId: string
-          shop_discounts: any[]
-          item_products: {
-            productId: string
-            quantity: number
-            price: number
-          }[]
-        }) => order.item_products
-      )
-      .filter(Boolean) as {
-      productId: string
-      quantity: number
-      price: number
-    }[]
-    console.log('>>> check products', products)
-    const acquireProduct = []
-    for (let i = 0; i < products.length; i++) {
-      const { productId, quantity } = products[i]
-      const keyLock = await acquiredLock(productId, quantity, cartId)
-      acquireProduct.push(keyLock ? true : false)
-      if (keyLock) {
-        await releaseLock(keyLock)
-      }
-    }
-
-    //check nếu có một sản phẩm hết hàng trong kho
-    if (acquireProduct.includes(false)) {
-      throw new ErrorWithStatus({
-        message: 'Một số sản phẩm đã được cập nhật, vui lòng quay lại giỏ hàng...',
-        status: HTTP_STATUS.BAD_REQUEST
-      })
-    }
-
-    //create new order
-    const newOrder = await databaseService.orders.insertOne({
-      order_userId: new ObjectId(userId),
-      order_checkout: checkout_order,
-      order_shipping: delivery_info,
-      order_payment: user_payment,
-      order_products: shop_order_ids_new,
-      order_status: OrderStatus.Pending,
-      order_trackingNumber: `#${Date.now()}`,
-      order_createdAt: new Date(),
-      order_updatedAt: new Date()
-    })
-
-    //Trường hợp nếu insert thành công
-    if (newOrder) {
-      try {
-        // 1. Cập nhật trạng thái giỏ hàng sang Completed
-        await databaseService.carts.updateOne(
-          { _id: new ObjectId(cartId) },
-          {
-            $set: {
-              cart_status: CartStatus.Completed,
-              cart_count_product: 0,
-              updated_at: new Date()
-            },
-            $push: {
-              cart_orders: {
-                order_id: newOrder.insertedId,
-                status: OrderStatus.Pending
-              }
-            }
-          }
-        )
-
-        // 2. Cập nhật số lượng trong kho (đã được khóa trước đó)
-        const productInventoryUpdates = products.map(async (product: any) => {
-          return databaseService.inventories.updateOne(
-            { inventory_productId: new ObjectId(product.productId) },
-            {
-              $inc: { inventory_stock: -product.quantity },
-              $set: { updated_at: new Date() }
-            }
-          )
-        })
-
-        await Promise.all(productInventoryUpdates)
-
-        // 3. Thêm thông tin đơn hàng vào lịch sử người dùng (nếu cần)
-        await databaseService.users.updateOne(
-          { _id: new ObjectId(userId) },
-          {
-            $push: {
-              user_orders: {
-                order_id: newOrder.insertedId,
-                order_date: new Date(),
-                order_status: OrderStatus.Pending
-              }
-            }
-          }
-        )
-
-        // 4. Trả về thông tin chi tiết đơn hàng đã tạo
-        return {
-          order_id: newOrder.insertedId,
-          order_number: `#${Date.now()}`,
-          order_date: new Date(),
-          order_status: OrderStatus.Pending,
-          order_total: checkout_order.totalCheckout,
-          order_items_count: products.length,
-          order_products: shop_order_ids_new,
-          order_checkout: checkout_order,
-          order_shipping: delivery_info,
-          order_payment: user_payment,
-          success: true,
-          message: 'Order created successfully'
-        }
-      } catch (error) {
-        console.error('Error in post-order processing:', error)
+      if (!user) {
         throw new ErrorWithStatus({
-          message: 'Order was created but post-processing failed',
+          message: USERS_MESSAGES.USER_NOT_FOUND,
+          status: HTTP_STATUS.NOT_FOUND
+        })
+      }
+
+      const checkoutReviewResult = await checkoutService.checkoutReview({
+        userId,
+        cartId,
+        shop_order_ids
+      })
+      // Kiểm tra và lấy dữ liệu từ kết quả
+      if (!checkoutReviewResult) {
+        throw new ErrorWithStatus({
+          message: 'Failed to process checkout review',
           status: HTTP_STATUS.INTERNAL_SERVER_ERROR
         })
       }
-    }
 
-    return newOrder
+      const { shop_order_ids_new, checkout_order } = checkoutReviewResult
+
+      //Lấy danh sách sản phẩm từ đơn hàng
+      const products = shop_order_ids_new
+        .flatMap(
+          (order: {
+            shopId: string
+            shop_discounts: any[]
+            item_products: {
+              productId: string
+              quantity: number
+              price: number
+              sku_id?: string
+            }[]
+          }) => order.item_products
+        )
+        .filter(Boolean) as {
+          productId: string
+          quantity: number
+          price: number
+          sku_id?: string
+        }[]
+
+      // Kiểm tra tồn kho và lấy khóa cho tất cả sản phẩm trong một vòng lặp duy nhất
+      // const outOfStockProducts = [];
+      // for (let i = 0; i < products.length; i++) {
+      //   const { productId, quantity, sku_id } = products[i];
+      //   const keyLock = await acquiredLock(productId, quantity, cartId);
+
+      //   if (!keyLock) {
+      //     // Thêm sản phẩm vào danh sách hết hàng
+      //     if (sku_id) {
+      //       outOfStockProducts.push(`${productId} (SKU: ${sku_id})`);
+      //     } else {
+      //       outOfStockProducts.push(productId);
+      //     }
+      //   } else {
+      //     // Lưu lại khóa để giải phóng sau khi hoàn tất
+      //     acquiredLocks.push(keyLock);
+      //   }
+      // }
+
+      // // Nếu có sản phẩm hết hàng, giải phóng tất cả khóa và báo lỗi
+      // if (outOfStockProducts.length > 0) {
+      //   throw new ErrorWithStatus({
+      //     message: `Các sản phẩm sau đã hết hàng hoặc không đủ số lượng: ${outOfStockProducts.join(', ')}`,
+      //     status: HTTP_STATUS.BAD_REQUEST
+      //   });
+      // }
+
+      // Khởi tạo session để sử dụng transaction
+      const session = databaseService.getMongoClient().startSession();
+
+      try {
+        let result;
+
+        // Sử dụng transaction để đảm bảo tính nhất quán
+        await session.withTransaction(async () => {
+          // 1. Tạo đơn hàng
+          const newOrder = await databaseService.orders.insertOne({
+            order_userId: new ObjectId(userId),
+            order_checkout: checkout_order,
+            order_shipping: delivery_info,
+            order_payment: user_payment,
+            order_products: shop_order_ids_new,
+            order_status: OrderStatus.Pending,
+            order_trackingNumber: `#${Date.now()}`,
+            order_createdAt: new Date(),
+            order_updatedAt: new Date()
+          }, { session });
+
+          // 2. Cập nhật tồn kho
+          const productInventoryUpdates = products.map(async (product: any) => {
+            if ('sku_id' in product && product.sku_id) {
+              // Với sản phẩm có SKU, cập nhật số lượng ở 3 nơi: SKU, SPU và inventory
+              return Promise.all([
+                // 1. Cập nhật sku_stock trong bảng productSKUs
+                databaseService.productSKUs.updateOne(
+                  { _id: new ObjectId(product.sku_id) },
+                  {
+                    $inc: { sku_stock: -product.quantity },
+                    $set: { updated_at: new Date() }
+                  },
+                  { session }
+                ),
+                // 2. Cập nhật product_quantity trong bảng productSPUs
+                databaseService.productSPUs.updateOne(
+                  { _id: new ObjectId(product.productId) },
+                  {
+                    $inc: { product_quantity: -product.quantity },
+                    $set: { updated_at: new Date() }
+                  },
+                  { session }
+                ),
+                // 3. Cập nhật inventory_stock trong bảng inventories
+                databaseService.inventories.updateOne(
+                  { inventory_productId: new ObjectId(product.productId) },
+                  {
+                    $inc: { inventory_stock: -product.quantity },
+                    $set: { updated_at: new Date() }
+                  },
+                  { session }
+                )
+              ]);
+            } else {
+              // Với sản phẩm không có SKU, chỉ cập nhật ở SPU và inventory
+              return Promise.all([
+                // 1. Cập nhật product_quantity trong bảng productSPUs
+                databaseService.productSPUs.updateOne(
+                  { _id: new ObjectId(product.productId) },
+                  {
+                    $inc: { product_quantity: -product.quantity },
+                    $set: { updated_at: new Date() }
+                  },
+                  { session }
+                ),
+                // 2. Cập nhật inventory_stock trong bảng inventories
+                databaseService.inventories.updateOne(
+                  { inventory_productId: new ObjectId(product.productId) },
+                  {
+                    $inc: { inventory_stock: -product.quantity },
+                    $set: { updated_at: new Date() }
+                  },
+                  { session }
+                )
+              ]);
+            }
+          });
+
+          await Promise.all(productInventoryUpdates);
+
+          // Lưu lại kết quả để trả về
+          result = {
+            order_id: newOrder.insertedId,
+            order_number: `#${Date.now()}`,
+            order_date: new Date(),
+            order_status: OrderStatus.Pending,
+            order_total: checkout_order.totalCheckout,
+            order_items_count: products.length,
+            order_products: shop_order_ids_new,
+            order_checkout: checkout_order,
+            order_shipping: delivery_info,
+            order_payment: user_payment,
+            success: true,
+            message: 'Order created successfully'
+          };
+        });
+
+        // Sau khi transaction thành công, xóa sản phẩm khỏi giỏ hàng
+        // Lưu ý: Thao tác này được thực hiện ngoài transaction vì nếu có lỗi,
+        // đơn hàng vẫn đã được tạo thành công và không cần rollback
+        const deleteCartPromises = products.map(async (product: any) => {
+          if ('sku_id' in product && product.sku_id) {
+            await cartService.deleteUserCart(userId, product.productId, product.sku_id);
+          } else {
+            await cartService.deleteUserCart(userId, product.productId);
+          }
+        });
+
+        await Promise.all(deleteCartPromises);
+
+        return result;
+      } finally {
+        // Kết thúc session bất kể thành công hay thất bại
+        await session.endSession();
+      }
+    } catch (error) {
+      console.error('Error in orderByUser:', error);
+      throw error;
+    } finally {
+      // Giải phóng tất cả khóa đã lấy được
+      for (const lock of acquiredLocks) {
+        await releaseLock(lock);
+      }
+    }
   }
 
   /*

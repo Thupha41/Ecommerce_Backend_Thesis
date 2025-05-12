@@ -88,9 +88,9 @@ export const handleUploadImage = async (req: Request, options: UploadImageOption
         return reject(err)
       }
 
-      if (!Boolean(files[fieldName])) {
-        return reject(new Error('File is empty'))
-      }
+      // if (!Boolean(files[fieldName])) {
+      //   return reject(new Error('File is empty'))
+      // }
       resolve({
         fields,
         files: files[fieldName] as File[]

@@ -27,9 +27,5 @@ export interface orderByUserRequestBody {
       street: string
     }
   }
-  user_payment: {
-    payment_method: string
-    payment_status: string
-    payment_amount: number
-  }
+  user_payment: string
 }

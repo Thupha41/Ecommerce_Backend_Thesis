@@ -1,5 +1,11 @@
 import { ObjectId } from 'mongodb'
 import { DiscountType, DiscountApplyTo } from '~/constants/enums'
+
+interface IDiscountProduct {
+  product_id: ObjectId
+  sku_id: ObjectId
+}
+
 interface IDiscountType {
   _id?: ObjectId
   discount_name: string
@@ -26,7 +32,10 @@ interface IDiscountType {
   //Đối tượng áp dụng discount
   discount_apply_to: DiscountApplyTo
   //Danh sách sản phẩm áp dụng discount
-  discount_product_ids: ObjectId[]
+  discount_products: Array<{
+    product_id: ObjectId
+    sku_id: ObjectId
+  }>
   //Trạng thái discount
   discount_status: boolean
   discount_is_active: boolean
@@ -49,7 +58,7 @@ export default class Discount {
   discount_min_order_value: number
   discount_shopId: ObjectId
   discount_apply_to: DiscountApplyTo = DiscountApplyTo.All
-  discount_product_ids: ObjectId[] = []
+  discount_products: IDiscountProduct[] = []
   discount_is_active: boolean = true
   created_at?: Date
   updated_at?: Date
@@ -69,7 +78,7 @@ export default class Discount {
     discount_min_order_value,
     discount_shopId,
     discount_apply_to,
-    discount_product_ids,
+    discount_products,
     discount_is_active,
     created_at,
     updated_at
@@ -89,7 +98,7 @@ export default class Discount {
     this.discount_min_order_value = discount_min_order_value
     this.discount_shopId = discount_shopId
     this.discount_apply_to = discount_apply_to
-    this.discount_product_ids = discount_product_ids
+    this.discount_products = discount_products
     this.discount_is_active = discount_is_active
     this.created_at = created_at || new Date()
     this.updated_at = updated_at || new Date()
