@@ -52,6 +52,15 @@ class SKUService {
       .find({
         product_id: new ObjectId(product_id)
       })
+      .project({
+        sku_no: 1,
+        sku_price: 1,
+        sku_image: 1,
+        sku_stock: 1,
+        sku_tier_idx: 1,
+        product_id: 1,
+        _id: 1
+      })
       .toArray()
   }
 }

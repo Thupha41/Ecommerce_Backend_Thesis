@@ -9,118 +9,24 @@ import { CARTS_MESSAGES, PRODUCTS_MESSAGES } from '~/constants/messages'
 class CartRepository {
   private carts = databaseService.carts
 
-  async createUserCart(userId: string, { product }: AddToCartReqBody) {
-    //check product exist
-    const foundProduct = await databaseService.productSPUs.findOne({ _id: new ObjectId(product.product_id) })
-    if (!foundProduct) {
+  async createUserCart(userId: string) {
+    const cart = await this.carts.insertOne({
+      _id: new ObjectId(),
+      cart_userId: new ObjectId(userId),
+      cart_status: CartStatus.Active,
+      cart_products: [],
+      cart_count_product: 0,
+      cart_total_price: 0,
+      created_at: new Date(),
+      updated_at: new Date()
+    })
+    if (!cart) {
       throw new ErrorWithStatus({
-        message: PRODUCTS_MESSAGES.PRODUCT_NOT_FOUND,
-        status: HTTP_STATUS.NOT_FOUND
+        message: 'Failed to create cart',
+        status: HTTP_STATUS.INTERNAL_SERVER_ERROR
       })
     }
-
-    // Kiểm tra variant
-    let hasVariants = foundProduct.product_variations && foundProduct.product_variations.length > 0
-
-    // Nếu có variant nhưng chưa có sku_id, cần trả về danh sách variants để frontend hiển thị modal
-    if (hasVariants && !product.sku_id) {
-      // Lấy danh sách variants của sản phẩm
-      const skus = await databaseService.productSKUs.find({
-        product_id: new ObjectId(product.product_id),
-        isDeleted: false
-      }).toArray();
-
-      return {
-        requireVariantSelection: true,
-        product: foundProduct,
-        variants: foundProduct.product_variations,
-        skus: skus
-      }
-    }
-
-    // Chuyển đổi sku_id nếu có
-    let sku_id = undefined
-    let productThumb = foundProduct.product_thumb
-    let variants = undefined
-
-    // Nếu có sku_id, tức là người dùng đã chọn variant
-    if (product.sku_id) {
-      sku_id = new ObjectId(product.sku_id)
-
-      // Lấy thông tin variant để cập nhật ảnh và thông tin thuộc tính
-      const sku = await databaseService.productSKUs.findOne({ _id: sku_id })
-      if (sku) {
-        if (sku.sku_image) {
-          productThumb = sku.sku_image
-        }
-
-        // Đảm bảo sku có tồn kho đủ
-        if (sku.sku_stock < (product.product_quantity || 1)) {
-          throw new ErrorWithStatus({
-            message: `Product variant is out of stock. Only ${sku.sku_stock} available.`,
-            status: HTTP_STATUS.BAD_REQUEST
-          });
-        }
-
-        // Lấy thông tin thuộc tính từ tier_index của SKU
-        if (sku.sku_tier_idx && foundProduct.product_variations) {
-          // Tạo mảng variants từ tier_idx và product_variations
-          variants = sku.sku_tier_idx.map((idx, i) => {
-            const variation = foundProduct.product_variations[i];
-            return {
-              name: variation.name,
-              value: variation.options[idx]
-            };
-          });
-        }
-      }
-    } else {
-      // Kiểm tra tồn kho của sản phẩm không có variant
-      const inventory = await databaseService.inventories.findOne({
-        inventory_productId: new ObjectId(product.product_id)
-      });
-
-      if (inventory && inventory.inventory_stock < (product.product_quantity || 1)) {
-        throw new ErrorWithStatus({
-          message: `Product is out of stock. Only ${inventory.inventory_stock} available.`,
-          status: HTTP_STATUS.BAD_REQUEST
-        });
-      }
-    }
-
-    const productWithObjectId = {
-      ...product,
-      product_id: new ObjectId(product.product_id),
-      shopId: new ObjectId(product.shopId),
-      product_thumb: productThumb,
-      sku_id: sku_id,
-      variants: variants
-    }
-
-    const query = { cart_userId: new ObjectId(userId), cart_status: CartStatus.Active }
-    const updateOrInsert = {
-      $addToSet: {
-        cart_products: productWithObjectId
-      }
-    }
-    const options = {
-      upsert: true,
-      returnDocument: ReturnDocument.AFTER
-    }
-    const result = await this.carts.findOneAndUpdate(query, updateOrInsert, options)
-
-    // Nếu có variant, trả về thêm thông tin variants
-    if (variants) {
-      return {
-        ...result,
-        addedProduct: {
-          ...productWithObjectId,
-          variants
-        }
-      }
-    }
-
-    return result
+    return cart
   }
 
   async updateUserCartQuantity(userId: string, { product }: AddToCartReqBody): Promise<WithId<Cart> | null | any> {
@@ -205,6 +111,7 @@ class CartRepository {
       }
 
       actualStock = inventory.inventory_stock;
+      // actualStock = foundProduct.product_quantity
     }
 
     // Get current cart to check existing quantity
@@ -254,6 +161,7 @@ class CartRepository {
       // Update existing product quantity
       const updated = await this.carts.findOneAndUpdate(
         {
+          _id: existingCart?._id,
           cart_userId: new ObjectId(userId),
           cart_status: CartStatus.Active,
           'cart_products.product_id': new ObjectId(product_id),

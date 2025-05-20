@@ -5,6 +5,8 @@ import orderService from '~/services/order.services'
 import checkoutService from '~/services/checkout.services'
 import { ParamsDictionary } from 'express-serve-static-core'
 import { CheckoutReviewReqBody } from '~/models/requests/checkout.requests'
+import { OrderStatus } from '~/constants/enums'
+import HTTP_STATUS from '~/constants/httpStatus'
 export const checkOutDeliveryInformation = async (req: Request, res: Response, next: NextFunction) => {
   const user = req.decoded_authorization as TokenPayload
   const user_id = user.user_id
@@ -106,3 +108,34 @@ export const updateOrderStatus = async (req: Request, res: Response, next: NextF
   })
   return
 }
+
+export const getOrdersByStatusController = async (req: Request, res: Response) => {
+  const { user_id } = req.decoded_authorization as TokenPayload; // Giả định user_id lấy từ token
+  const { status } = req.query as { status: OrderStatus };
+
+  // Kiểm tra giá trị status hợp lệ
+  const validStatuses = Object.values(OrderStatus);
+  if (!status || !validStatuses.includes(status)) {
+    res.status(HTTP_STATUS.BAD_REQUEST).json({
+      message: `Invalid status. Must be one of: ${validStatuses.join(', ')}`,
+    });
+    return
+  }
+
+
+  const result = await orderService.getOrdersByUser(user_id, status);
+  res.status(HTTP_STATUS.OK).json(result);
+  return
+};
+
+export const getOrderDetailController = async (req: Request, res: Response) => {
+  const { user_id } = req.decoded_authorization as TokenPayload; // Giả định user_id lấy từ token
+  const { orderId } = req.params as { orderId: string };
+
+  const result = await orderService.getOrderDetailByUser(user_id, orderId);
+  res.json({
+    message: ORDERS_MESSAGES.GET_ORDER_DETAIL_SUCCESS,
+    result
+  })
+  return
+};

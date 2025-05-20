@@ -269,7 +269,8 @@ export const ORDERS_MESSAGES = {
   PLACE_ORDER_SUCCESS: 'Place order successfully',
   CANCEL_ORDER_SUCCESS: 'Cancel order successfully',
   UPDATE_ORDER_STATUS_SUCCESS: 'Update order status successfully',
-  ORDER_NOT_DELIVERED: 'Order not delivered'
+  ORDER_NOT_DELIVERED: 'Order not delivered',
+  GET_ORDER_DETAIL_SUCCESS: 'Get order detail successfully'
 } as const
 
 export const INVENTORY_MESSAGES = {

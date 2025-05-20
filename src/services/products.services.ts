@@ -5,6 +5,7 @@ import { ProductType } from '~/constants/enums'
 import { IProductType } from '~/models/schemas/Products/Product.schema'
 import { productRepository } from '../models/repositories/products.repo'
 import { insertInventory } from '~/models/repositories/inventory.repo'
+import skusService from './skus.services'
 // Base Product Class
 class Product {
   private products = databaseService.products
@@ -517,7 +518,7 @@ class ProductFactory {
     return await productRepository.searchProduct({ keySearch })
   }
 
-  static async findAllProducts({ limit = 50, sort = 'ctime', page = 1, filter = { isPublished: true } }) {
+  static async findAllProducts({ limit = 3000, sort = 'ctime', page = 1, filter = { isPublished: true } }) {
     return await productRepository.findAll({
       limit,
       sort,
@@ -532,6 +533,7 @@ class ProductFactory {
         'product_slug',
         'product_ratingsAverage',
         'product_variations',
+        'product_media',
         'isDraft',
         'isPublished',
         '_id',
@@ -541,10 +543,67 @@ class ProductFactory {
   }
 
   static async findOneProduct({ product_id }: { product_id: string }) {
-    return await productRepository.findOne({
+    // Get the product details
+    const product = await productRepository.findOne({
       product_id,
-      unSelect: ['__v', 'product_variations']
+      unSelect: ['__v', 'created_at', 'updated_at']
     })
+    if (!product) return null
+    //get shop of product
+    const shop = await databaseService.shops.findOne({
+      _id: new ObjectId(product.product_shop)
+    }, {
+      projection: {
+        shop_name: 1,
+        shop_logo: 1,
+        _id: 1,
+        shop_rating: 1,
+        shop_response_rate: 1,
+      }
+    })
+
+    // Count total products of this shop
+    const totalProducts = await databaseService.productSPUs.countDocuments({
+      product_shop: new ObjectId(product.product_shop),
+      isPublished: true
+    })
+
+    // Get other products from the same shop (excluding the current product)
+    const otherShopProducts = await databaseService.productSPUs
+      .find({
+        product_shop: new ObjectId(product.product_shop),
+        _id: { $ne: new ObjectId(product_id) }, // Exclude current product
+        isPublished: true,
+        isDeleted: { $ne: true }
+      })
+      .sort({ created_at: -1 }) // Sort by newest first
+      .limit(10) // Limit to 10 products
+      .project({
+        product_name: 1,
+        product_thumb: 1,
+        product_price: 1,
+        sold_quantity: 1,
+        _id: 1
+      })
+      .toArray()
+
+    // Get the SKUs for this product
+    const productSkus = await skusService.getSKUsByProductId(product_id)
+
+    // Return the product details, SKUs, shop info, and other products from the shop
+    return {
+      ...product,
+      product_skus: productSkus,
+      shop: shop ? {
+        _id: shop._id.toString(),
+        shop_name: shop.shop_name,
+        shop_logo: shop.shop_logo,
+        shop_rating: shop.shop_rating,
+        shop_response_rate: shop.shop_response_rate,
+        total_products: totalProducts
+      } : null,
+      other_shop_products: otherShopProducts
+    }
   }
 
   static async findOneProductByName({ product_name }: { product_name: string }) {

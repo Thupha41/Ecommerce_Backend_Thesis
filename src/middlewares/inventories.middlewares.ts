@@ -12,22 +12,10 @@ export const inventoryValidator = validate(
       },
       isInt: {
         errorMessage: INVENTORY_MESSAGES.STOCK_MUST_BE_A_NUMBER
-      },
-      custom: {
-        options: (value) => {
-          if (value <= 0) {
-            throw new ErrorWithStatus({
-              message: INVENTORY_MESSAGES.STOCK_MUST_BE_GREATER_THAN_0,
-              status: HTTP_STATUS.BAD_REQUEST
-            })
-          }
-        }
       }
     },
     location: {
-      notEmpty: {
-        errorMessage: INVENTORY_MESSAGES.LOCATION_IS_REQUIRED
-      },
+      optional: true,
       isString: {
         errorMessage: INVENTORY_MESSAGES.LOCATION_MUST_BE_A_STRING
       }

@@ -11,7 +11,6 @@ interface UserType {
   updated_at?: Date
   forgot_password_token?: string
   verify?: UserVerifyStatus
-  location?: string
   avatar?: string
   cover_photo?: string
   user_role?: ObjectId
@@ -32,7 +31,6 @@ export default class User {
   updated_at: Date
   forgot_password_token: string // jwt hoặc '' nếu đã xác thực email
   verify: UserVerifyStatus
-  location: string // optional
   avatar: string // optional
   cover_photo: string // optional
   code: string
@@ -51,7 +49,6 @@ export default class User {
     this.updated_at = user.updated_at || date
     this.forgot_password_token = user.forgot_password_token || ''
     this.verify = user.verify || UserVerifyStatus.Unverified
-    this.location = user.location || ''
     this.avatar = user.avatar || ''
     this.cover_photo = user.cover_photo || ''
     this.code = user.code || ''

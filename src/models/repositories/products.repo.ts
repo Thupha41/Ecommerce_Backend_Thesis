@@ -2,7 +2,9 @@ import { ObjectId, Sort, SortDirection } from 'mongodb'
 import databaseService from '~/services/database.services'
 import { ProductUpdateReqBody } from '~/models/requests/products.requests'
 import { ICheckoutProduct } from '../requests/checkout.requests'
-
+import { ErrorWithStatus } from '../Errors'
+import HTTP_STATUS from '~/constants/httpStatus'
+import { PRODUCTS_MESSAGES } from '~/constants/messages'
 class ProductRepository {
   private products = databaseService.products
   private productSPUs = databaseService.productSPUs
@@ -123,6 +125,16 @@ class ProductRepository {
   }
 
   async findOne({ product_id, unSelect }: { product_id: string; unSelect?: string[] }) {
+    const product = await this.productSPUs.findOne({
+      _id: new ObjectId(product_id)
+    })
+
+    if (!product) {
+      throw new ErrorWithStatus({
+        message: PRODUCTS_MESSAGES.PRODUCT_NOT_FOUND,
+        status: HTTP_STATUS.NOT_FOUND
+      })
+    }
     const projection: Record<string, 1 | 0> = {}
     if (unSelect) {
       unSelect.forEach((field) => {
@@ -130,7 +142,7 @@ class ProductRepository {
       })
     }
 
-    return await this.products.findOne({ _id: new ObjectId(product_id) }, { projection })
+    return await this.productSPUs.findOne({ _id: new ObjectId(product_id) }, { projection })
   }
   async findOneByName({ product_name, unSelect }: { product_name: string; unSelect?: string[] }) {
     const projection: Record<string, 1 | 0> = {}
@@ -141,7 +153,7 @@ class ProductRepository {
     }
 
     // Use a case-insensitive regex match instead of exact match
-    return await this.products.findOne(
+    return await this.productSPUs.findOne(
       {
         product_name: { $regex: new RegExp('^' + product_name + '$', 'i') },
         isPublished: true
@@ -208,11 +220,11 @@ class ProductRepository {
         // Only add nested properties if the result is not empty
         if (Object.keys(res).length > 0) {
           Object.keys(res).forEach((resKey) => {
-            ;(final as Record<string, unknown>)[`${key}.${resKey}`] = res[resKey as keyof typeof res]
+            ; (final as Record<string, unknown>)[`${key}.${resKey}`] = res[resKey as keyof typeof res]
           })
         }
       } else {
-        ;(final as Record<string, unknown>)[key] = cleanObj[key as keyof ProductUpdateReqBody]
+        ; (final as Record<string, unknown>)[key] = cleanObj[key as keyof ProductUpdateReqBody]
       }
     })
     console.log(`[3]`, final)

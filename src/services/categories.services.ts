@@ -273,47 +273,80 @@ class CategoriesService {
         status: HTTP_STATUS.NOT_FOUND
       })
     }
-    console.log('Found category:', category)
+    console.log('Found category:', category.category_name, 'with level:', category.level)
 
-    // Bước 2: Kiểm tra xem danh mục hiện tại có con hay không
-    console.log('Step 2: Checking if category has children...')
-    const hasChildren =
-      (await databaseService.categories.countDocuments({
-        category_path: { $regex: `^${category.category_path}/${category._id}` }
-      })) > 0
-    console.log('Has children:', hasChildren)
-
-    // Bước 3: Khởi tạo danh sách danh mục liên quan và ID
-    console.log('Step 3: Initializing related categories and IDs')
+    // Bước 2: Khởi tạo danh sách danh mục liên quan và ID
+    console.log('Step 2: Initializing related categories and IDs')
     let relatedCategories: any[] = [category] // Bao gồm danh mục hiện tại
     let relatedLevelIds: ObjectId[] = [new ObjectId(categoryId)]
-    console.log('Initial relatedCategories:', relatedCategories)
-    console.log('Initial relatedLevelIds:', relatedLevelIds)
 
-    // Bước 4: Nếu có con, lấy tất cả danh mục trong nhánh
-    if (hasChildren) {
-      console.log('Step 4: Category has children, getting all related categories in branch...')
-      const pathPrefix = category?.category_path?.split('/').slice(0, -1).join('/') || ''
-      console.log('Path prefix for branch:', pathPrefix)
-      relatedCategories = await databaseService.categories
+    // Bước 3: Xử lý theo level của category
+    if (category.level === 4) {
+      // Nếu là category level 4, chỉ lấy sản phẩm từ category này
+      console.log('Step 3: Category is level 4, only getting products from this specific category')
+
+      // Không cần thay đổi relatedCategories và relatedLevelIds vì chỉ chứa category hiện tại
+    }
+    else if (category.level === 3) {
+      // Nếu là category level 3, lấy cả sản phẩm từ category này và các category level 4 con
+      console.log('Step 3: Category is level 3, getting products from this category and all level 4 children')
+
+      // Lấy tất cả category level 4 con của category hiện tại
+      const childCategories = await databaseService.categories
         .find({
-          category_path: { $regex: `^${pathPrefix}` }
+          parent_id: new ObjectId(categoryId),
+          level: 4
         })
         .toArray()
-      console.log('All related categories:', relatedCategories)
-      relatedLevelIds = relatedCategories.map((cat) => cat._id)
-      console.log('Updated relatedLevelIds:', relatedLevelIds)
-    } else {
-      console.log('Step 4: Category is a leaf, no children to fetch.')
+
+      if (childCategories.length > 0) {
+        console.log(`Found ${childCategories.length} level 4 child categories`)
+        relatedCategories = [...relatedCategories, ...childCategories]
+        relatedLevelIds = relatedCategories.map((cat) => cat._id)
+      }
+    }
+    else if (category.level < 3) {
+      // Nếu là category level 1 hoặc 2, lấy tất cả các category level 3 con
+      console.log(`Step 3: Category is level ${category.level}, finding all level 3 descendants`)
+
+      const level3Categories = await databaseService.categories
+        .find({
+          category_path: { $regex: category._id.toString() },
+          level: 3
+        })
+        .toArray()
+
+      if (level3Categories.length > 0) {
+        console.log(`Found ${level3Categories.length} level 3 descendant categories`)
+
+        // Lấy ID của tất cả category level 3
+        const level3Ids = level3Categories.map(cat => cat._id)
+
+        // Lấy tất cả category level 4 là con của các category level 3
+        const level4Categories = await databaseService.categories
+          .find({
+            parent_id: { $in: level3Ids },
+            level: 4
+          })
+          .toArray()
+
+        console.log(`Found ${level4Categories.length} level 4 categories under level 3 categories`)
+
+        // Gộp tất cả category level 3 và 4 để lấy sản phẩm
+        relatedCategories = [...level3Categories, ...level4Categories]
+        relatedLevelIds = relatedCategories.map((cat) => cat._id)
+      } else {
+        console.log('No level 3 descendants found')
+      }
     }
 
+    console.log(`Step 4: Will query products from ${relatedLevelIds.length} related categories`)
+
     // Bước 5: Lấy danh sách sản phẩm từ các danh mục liên quan
-    console.log('Step 5: Fetching products for related category IDs:', relatedLevelIds)
     const products = await databaseService.productSPUs
       .find({
         product_category: { $in: relatedLevelIds },
         isPublished: true,
-        isDeleted: false
       })
       .project({
         product_name: 1,
@@ -321,16 +354,14 @@ class CategoriesService {
         product_price: 1
       })
       .toArray()
-    console.log('Fetched products:', products)
+    console.log(`Fetched ${products.length} products`)
 
     // Bước 6: Trả về kết quả
-    console.log('Step 6: Returning result')
     const result = {
       category: category,
-      relatedCategories: relatedCategories,
       products: products
     }
-    console.log('Final result:', result)
+
     return result
   }
 

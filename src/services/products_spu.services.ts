@@ -8,6 +8,7 @@ import { generateSlug } from '~/utils'
 import { generateSPUNo } from '~/utils'
 import ProductSPU from '~/models/schemas/Products/Product_SPU.schema'
 import skusService from './skus.services'
+import { insertInventory } from '~/models/repositories/inventory.repo'
 class ProductSPUService {
   async createProductSPU(
     user_id: string,
@@ -71,6 +72,14 @@ class ProductSPUService {
         updated_at: new Date()
       })
     )
+    //create inventory
+    if (newProductSPU) {
+      await insertInventory({
+        productId: newProductSPU.insertedId.toString(),
+        shopId: product_shop,
+        stock: product_quantity
+      })
+    }
     //4. Create product SKUs
     let createdSKUs = null
     if (newProductSPU && sku_list && sku_list.length) {
@@ -112,7 +121,6 @@ class ProductSPUService {
         status: HTTP_STATUS.NOT_FOUND
       })
     }
-
     // Get all SKUs for this product with full information
     const skus = await skusService.getSKUsByProductId(product_id)
 

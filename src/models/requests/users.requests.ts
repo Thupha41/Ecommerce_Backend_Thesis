@@ -4,7 +4,6 @@ import { ParamsDictionary } from 'express-serve-static-core'
 export interface UpdateMeReqBody {
   name?: string
   date_of_birth?: string
-  location?: string
   website?: string
   avatar?: string
   cover_photo?: string

@@ -22,13 +22,6 @@ interface DiscountUserUsed {
   count: number
 }
 
-interface Product {
-  productId: string
-  shopId: string
-  quantity: number
-  name: string
-  price: number
-}
 
 class DiscountService {
   //1
@@ -46,7 +39,7 @@ class DiscountService {
       discount_end_date,
       discount_is_active,
       discount_apply_to,
-      discount_product_ids,
+      discount_products,
       discount_shopId,
       discount_used_count
     } = payload
@@ -69,6 +62,7 @@ class DiscountService {
         status: HTTP_STATUS.BAD_REQUEST
       })
     }
+
     const discount = await databaseService.discounts.insertOne({
       discount_name,
       discount_description,
@@ -82,11 +76,12 @@ class DiscountService {
       discount_end_date: new Date(discount_end_date),
       discount_is_active: discount_is_active || true,
       discount_apply_to: discount_apply_to || 'all',
-      discount_product_ids: discount_apply_to === 'specific' ? discount_product_ids : [],
+      discount_products: discount_apply_to === 'specific' ? discount_products : [],
       discount_shopId: new ObjectId(discount_shopId),
       discount_used_count: discount_used_count || 0
     })
     return {
+      _id: discount.insertedId,
       discount_name,
       discount_description,
       discount_type,
@@ -99,7 +94,7 @@ class DiscountService {
       discount_end_date,
       discount_is_active,
       discount_apply_to,
-      discount_product_ids,
+      discount_products,
       discount_shopId,
       discount_used_count
     }
@@ -129,7 +124,7 @@ class DiscountService {
       })
     }
     console.log('>>> check found discount code', foundDiscount)
-    const { discount_apply_to, discount_product_ids } = foundDiscount
+    const { discount_apply_to, discount_products } = foundDiscount
     let products
 
     if (discount_apply_to === 'all') {
@@ -152,7 +147,7 @@ class DiscountService {
         sort: 'ctime',
         select: ['product_name'] as string[],
         filter: {
-          _id: { $in: discount_product_ids as ObjectId[] },
+          _id: { $in: discount_products.map((product) => product.product_id) as ObjectId[] },
           isPublished: true
         }
       })

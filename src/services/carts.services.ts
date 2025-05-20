@@ -127,7 +127,6 @@ class CartService {
 
   async getListCart({ userId }: GetListCartReqQuery) {
     //check user
-    console.log(1)
     const foundUser = await databaseService.users.findOne({ _id: new ObjectId(userId) })
     if (!foundUser) {
       throw new ErrorWithStatus({
@@ -288,8 +287,8 @@ class CartService {
     // Find the current product in cart
     const cartItem = product.sku_id
       ? currentCart.cart_products.find(
-          (p) => p.product_id.toString() === productId && p.sku_id?.toString() === product.sku_id
-        )
+        (p) => p.product_id.toString() === productId && p.sku_id?.toString() === product.sku_id
+      )
       : currentCart.cart_products.find((p) => p.product_id.toString() === productId && !p.sku_id)
 
     if (!cartItem) {

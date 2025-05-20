@@ -233,6 +233,57 @@ export const handleProductThumbUpload = async (req: Request, res: Response, next
 
 export const handleProductMediaUpload = async (req: Request, res: Response, next: NextFunction) => {
   try {
+    // Handle product_thumb from string URL if not a file upload
+    if (req.body.product_thumb && typeof req.body.product_thumb === 'string' && !req.headers['content-type']?.includes('multipart/form-data')) {
+      // Use the URL string directly - no processing needed
+      console.log('Using string URL for product_thumb:', req.body.product_thumb)
+    }
+
+    // Handle product_media from string array if not a file upload
+    if (req.body.product_media && !req.headers['content-type']?.includes('multipart/form-data')) {
+      // Handle both array of strings and single string for product_media
+      if (Array.isArray(req.body.product_media)) {
+        // Convert array of strings to proper media format
+        req.body.product_media = req.body.product_media.map((url: string) => {
+          if (typeof url !== 'string') return url; // Already in correct format
+          // Determine if URL is for image or video based on extension
+          const isVideo = /\.(mp4|mov|avi|mkv)$/i.test(url);
+          return {
+            url: url,
+            type: isVideo ? 'video' : 'image'
+          };
+        });
+      } else if (typeof req.body.product_media === 'string') {
+        // Try to parse as JSON string array
+        try {
+          const mediaArray = JSON.parse(req.body.product_media);
+          if (Array.isArray(mediaArray)) {
+            req.body.product_media = mediaArray.map((url: string) => {
+              // Determine if URL is for image or video based on extension
+              const isVideo = /\.(mp4|mov|avi|mkv)$/i.test(url);
+              return {
+                url: url,
+                type: isVideo ? 'video' : 'image'
+              };
+            });
+          }
+        } catch (e) {
+          // If it's just a single string and not JSON array, use it as one item
+          if (req.body.product_media.trim()) {
+            const url = req.body.product_media.trim();
+            const isVideo = /\.(mp4|mov|avi|mkv)$/i.test(url);
+            req.body.product_media = [{
+              url: url,
+              type: isVideo ? 'video' : 'image'
+            }];
+          } else {
+            req.body.product_media = [];
+          }
+        }
+      }
+      console.log('Using product_media from JSON body:', JSON.stringify(req.body.product_media));
+    }
+
     // Only process if it's a multipart form
     if (req.headers['content-type']?.includes('multipart/form-data')) {
       console.log('Raw form fields before processing:', req.body)
@@ -283,10 +334,46 @@ export const handleProductMediaUpload = async (req: Request, res: Response, next
           // Use local path as fallback
           req.body.product_thumb = `/images/products/product_thumb/${productSlug}/${thumbFilename}`
         }
+      } else if (fields.product_thumb && typeof fields.product_thumb === 'string') {
+        // Handle product_thumb provided as a string URL in form fields
+        req.body.product_thumb = fields.product_thumb;
+        console.log('Using string URL for product_thumb from form fields:', req.body.product_thumb);
       }
 
-      // Process media files if present
-      if (product_media && product_media.length) {
+      // Handle string form of product_media from form fields before processing actual files
+      if (fields.product_media && typeof fields.product_media === 'string') {
+        try {
+          // Try to parse as JSON
+          const mediaArray = JSON.parse(fields.product_media);
+          if (Array.isArray(mediaArray)) {
+            // Convert array of strings to proper media format
+            req.body.product_media = mediaArray.map((url: string) => {
+              // Determine if URL is for image or video based on extension
+              const isVideo = /\.(mp4|mov|avi|mkv)$/i.test(url);
+              return {
+                url: url,
+                type: isVideo ? 'video' : 'image'
+              };
+            });
+            console.log('Using string URLs for product_media from form fields:', JSON.stringify(req.body.product_media));
+          }
+        } catch (e) {
+          console.error('Error parsing product_media JSON string:', e);
+          // If it's just a single string and not JSON array, we can still use it
+          if (fields.product_media.trim()) {
+            const url = fields.product_media.trim();
+            const isVideo = /\.(mp4|mov|avi|mkv)$/i.test(url);
+            req.body.product_media = [{
+              url: url,
+              type: isVideo ? 'video' : 'image'
+            }];
+            console.log('Using single string URL for product_media:', JSON.stringify(req.body.product_media));
+          }
+        }
+      }
+
+      // Process media files if present and product_media wasn't set from JSON string
+      if (product_media && product_media.length && !req.body.product_media) {
         const videoExtensions = ['.mp4', '.mov', '.avi', '.mkv']
         const mediaFiles = []
 

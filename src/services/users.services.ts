@@ -18,6 +18,7 @@ import * as fs from 'fs'
 import * as path from 'path'
 import Role from '~/models/schemas/Role.schema'
 import { addResourcesUrlToRoles, addResourcesUrlToSingleRole } from '~/utils/role.utils'
+import { cartRepository } from '~/models/repositories/cart.repo'
 
 class UsersService {
   private async signAccessToken({
@@ -308,7 +309,8 @@ class UsersService {
         token: refresh_token
       })
     )
-
+    //tạo cart cho user
+    await cartRepository.createUserCart(user_id.toString())
     return {
       access_token,
       refresh_token,
@@ -346,6 +348,7 @@ class UsersService {
         token: refresh_token
       })
     )
+
     return {
       user_id,
       access_token,
@@ -507,11 +510,25 @@ class UsersService {
         projection: {
           password: 0,
           email_verify_token: 0,
-          forgot_password_token: 0
+          forgot_password_token: 0,
+          code: 0,
+          code_expired: 0,
         }
       }
     )
-    return user
+
+    //tìm user cart
+    const cart = await databaseService.carts.findOne({ cart_userId: new ObjectId(user_id) })
+    if (!cart) {
+      throw new ErrorWithStatus({
+        message: 'Cart user not found',
+        status: HTTP_STATUS.NOT_FOUND
+      })
+    }
+    return {
+      user: user,
+      cart: cart
+    }
   }
 
   async updateMe(user_id: string, payload: UpdateMeReqBody) {

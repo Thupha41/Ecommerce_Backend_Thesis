@@ -53,8 +53,8 @@ export const getShopProductsController = async (req: Request, res: Response) => 
 }
 
 export const getShopByIdController = async (req: Request, res: Response) => {
-  const { shop_id, shop_slug } = req.params
-  const result = await shopService.getShopByIdOrSlug(shop_id, shop_slug)
+  const { shop_id } = req.params
+  const result = await shopService.getShopByIdOrSlug(shop_id)
   res.json({
     message: SHOP_MESSAGES.GET_SHOP_SUCCESS,
     result
