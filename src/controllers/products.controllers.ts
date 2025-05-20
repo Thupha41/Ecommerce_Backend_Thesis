@@ -163,7 +163,7 @@ export const getAllProductsController = async (
   res: Response,
   next: NextFunction
 ) => {
-  const { limit = 50, sort = 'ctime', page = 1, filter = { isPublished: true } } = req.query
+  const { limit = 3000, sort = 'ctime', page = 1, filter = { isPublished: true } } = req.query
 
   const queryParams: FindAllProductsParams = {
     limit: Number(limit),
@@ -323,7 +323,7 @@ export const updateProductThumbController = async (
 
 export const getTopProductsController = async (req: Request, res: Response, next: NextFunction) => {
   const queryParams: FindAllProductsParams = {
-    limit: 50,
+    limit: 1000,
     sort: 'product_ratingsAverage',
     page: 1,
     filter: {

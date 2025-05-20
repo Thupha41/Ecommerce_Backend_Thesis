@@ -96,7 +96,7 @@ class CheckoutService {
     //STEP 3: init checkout order
     const checkout_order = {
       totalPrice: 0, //tong tien hang
-      feeShip: 0,
+      feeShip: 25000,
       totalDiscount: 0,
       totalCheckout: 0 //tong thanh toan
     }
@@ -198,27 +198,20 @@ class CheckoutService {
       //STEP 6: tong thanh toan cuoi cung
       checkout_order.totalCheckout += checkout_order_detail.priceApplyDiscount
       shop_order_ids_new.push(checkout_order_detail)
+    }
 
-      //STEP 7: Kiểm tra thông tin giao hàng
-      const delivery_info = await this.checkOutDeliveryInformation(userId)
-      const shipping_information = {
-        personal_detail: {
-          name: delivery_info.personal_detail.name,
-          phone: delivery_info.personal_detail.phone
-        },
-        shipping_address: delivery_info.shipping_address
-      }
+    // Cộng thêm feeShip vào totalCheckout
+    checkout_order.totalCheckout += checkout_order.feeShip
 
-      return {
-        shop_order_ids: updatedShopOrderIds,
-        shop_order_ids_new,
-        checkout_order,
-        shipping_information: shipping_information,
-        orderStatus,
-        orderTotal
-      }
+    return {
+      shop_order_ids: updatedShopOrderIds,
+      shop_order_ids_new,
+      checkout_order,
+      orderStatus,
+      orderTotal
     }
   }
+
   async checkOutDeliveryInformation(user_id: string) {
     const user = await databaseService.users.findOne({
       _id: new ObjectId(user_id)

@@ -49,7 +49,7 @@ categoryRouter.get('/children/:parentId', wrapRequestHandler(getChildrenCategori
  * Method: GET
  * Access: Public
  */
-categoryRouter.get('/products/:categoryId', wrapRequestHandler(getProductsByCategoryHierarchyController))
+categoryRouter.get('/:categoryId/products', wrapRequestHandler(getProductsByCategoryHierarchyController))
 
 /**
  * Description: Update category

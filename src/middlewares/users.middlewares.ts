@@ -281,7 +281,7 @@ export const accessTokenValidator = validate(
             const access_token = (value || '').split(' ')[1]
             const decoded = await verifyAccessToken(access_token, req as Request)
             console.log('>>> check decoded', JSON.stringify(decoded, null, 2))
-            ;(req as Request).decoded_authorization = decoded
+              ; (req as Request).decoded_authorization = decoded
           }
         }
       }
@@ -350,7 +350,7 @@ export const refreshTokenValidator = validate(
                   status: HTTP_STATUS.UNAUTHORIZED
                 })
               }
-              ;(req as Request).decoded_refresh_token = decoded_refresh_token
+              ; (req as Request).decoded_refresh_token = decoded_refresh_token
             } catch (error) {
               if (error instanceof JsonWebTokenError) {
                 throw new ErrorWithStatus({
@@ -483,68 +483,6 @@ export const updateMeValidator = validate(
       date_of_birth: {
         ...dateOfBirthSchema,
         optional: true
-      },
-      bio: {
-        optional: true,
-        isString: {
-          errorMessage: USERS_MESSAGES.BIO_MUST_BE_STRING
-        },
-        trim: true,
-        isLength: {
-          options: {
-            min: 1,
-            max: 200
-          },
-          errorMessage: USERS_MESSAGES.BIO_LENGTH
-        }
-      },
-      location: {
-        optional: true,
-        isString: {
-          errorMessage: USERS_MESSAGES.LOCATION_MUST_BE_STRING
-        },
-        trim: true,
-        isLength: {
-          options: {
-            min: 1,
-            max: 200
-          },
-          errorMessage: USERS_MESSAGES.LOCATION_LENGTH
-        }
-      },
-      website: {
-        optional: true,
-        isString: {
-          errorMessage: USERS_MESSAGES.WEBSITE_MUST_BE_STRING
-        },
-        trim: true,
-        isLength: {
-          options: {
-            min: 1,
-            max: 200
-          },
-          errorMessage: USERS_MESSAGES.WEBSITE_LENGTH
-        }
-      },
-      username: {
-        optional: true,
-        isString: {
-          errorMessage: USERS_MESSAGES.USERNAME_MUST_BE_STRING
-        },
-        trim: true,
-        custom: {
-          options: async (value: string, { req }) => {
-            if (!REGEX_USERNAME.test(value)) {
-              throw Error(USERS_MESSAGES.USERNAME_INVALID)
-            }
-            const user = await databaseService.users.findOne({ username: value })
-            // Nếu đã tồn tại username này trong db
-            // thì chúng ta không cho phép update
-            if (user) {
-              throw Error(USERS_MESSAGES.USERNAME_EXISTED)
-            }
-          }
-        }
       },
       avatar: imageSchema,
       cover_photo: imageSchema

@@ -179,7 +179,7 @@ class OrderService {
 
           // Lưu lại kết quả để trả về
           result = {
-            order_id: newOrder.insertedId,
+            _id: newOrder.insertedId,
             order_number: `#${Date.now()}`,
             order_date: new Date(),
             order_status: OrderStatus.Pending,
@@ -221,6 +221,89 @@ class OrderService {
         await releaseLock(lock);
       }
     }
+  }
+
+  static async getOrdersByUser(userId: string, status: OrderStatus) {
+    // Kiểm tra người dùng tồn tại
+    const user = await databaseService.users.findOne({ _id: new ObjectId(userId) });
+    if (!user) {
+      throw new ErrorWithStatus({
+        message: USERS_MESSAGES.USER_NOT_FOUND,
+        status: HTTP_STATUS.NOT_FOUND,
+      });
+    }
+
+    // Truy vấn đơn hàng theo userId và status
+    const orders = await databaseService.orders
+      .find({
+        order_userId: new ObjectId(userId),
+        order_status: status,
+      })
+      .toArray();
+
+    if (!orders || orders.length === 0) {
+      return {
+        message: `No orders found with status ${status}`,
+        orders: [],
+      };
+    }
+
+    // Trả về danh sách đơn hàng
+    return {
+      message: `Orders with status ${status} retrieved successfully`,
+      result: orders.map((order) => ({
+        _id: order._id,
+        order_userId: order.order_userId,
+        order_trackingNumber: order.order_trackingNumber,
+        order_products: order.order_products,
+        order_status: order.order_status,
+      })),
+    };
+  }
+
+  static async getOrderDetailByUser(userId: string, orderId: string) {
+    // Kiểm tra người dùng tồn tại
+    const user = await databaseService.users.findOne({ _id: new ObjectId(userId) });
+    if (!user) {
+      throw new ErrorWithStatus({
+        message: USERS_MESSAGES.USER_NOT_FOUND,
+        status: HTTP_STATUS.NOT_FOUND,
+      });
+    }
+
+    // Truy vấn chi tiết đơn hàng
+    const order = await databaseService.orders.findOne({
+      _id: new ObjectId(orderId),
+      order_userId: new ObjectId(userId),
+    });
+
+    if (!order) {
+      throw new ErrorWithStatus({
+        message: ORDERS_MESSAGES.ORDER_NOT_FOUND,
+        status: HTTP_STATUS.NOT_FOUND,
+      });
+    }
+
+    // Xử lý dữ liệu để phù hợp với giao diện
+    const orderDetail = {
+      _id: order._id.toString(),
+      order_userId: order.order_userId.toString(),
+      order_trackingNumber: order.order_trackingNumber,
+      order_status: order.order_status,
+      order_checkout: order.order_checkout,
+      order_payment: order.order_payment,
+      order_shipping: order.order_shipping,
+      order_products: order.order_products,
+      order_createdAt: order.order_createdAt,
+      order_updatedAt: order.order_updatedAt,
+      actions: {
+        can_cancel: order.order_status === OrderStatus.Pending || order.order_status === OrderStatus.Confirmed,
+        contact_shop: true,
+        view_details: true,
+      },
+    };
+
+    return orderDetail
   }
 
   /*

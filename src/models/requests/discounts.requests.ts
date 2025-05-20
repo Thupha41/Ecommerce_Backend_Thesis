@@ -19,7 +19,10 @@ export interface CreateDiscountCodeReqBody {
   discount_start_date: Date
   discount_end_date: Date
   discount_apply_to: DiscountApplyTo
-  discount_product_ids: ObjectId[]
+  discount_products: Array<{
+    product_id: ObjectId
+    sku_id?: ObjectId
+  }>
   discount_shopId: ObjectId
   discount_used_count: number
   discount_is_active: boolean

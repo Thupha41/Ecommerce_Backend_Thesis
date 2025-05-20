@@ -5,6 +5,7 @@ import { PRODUCTS_MESSAGES } from '~/constants/messages'
 import databaseService from './database.services'
 import { IAddToStockRequestBody } from '~/models/requests/checkout.requests'
 import { ObjectId } from 'mongodb'
+import { InventoryStatus } from '~/constants/enums'
 class InventoryService {
   static async addStockToInventory({ stock, productId, shopId, location = 'unknown' }: IAddToStockRequestBody) {
     const foundProduct = await productRepository.getProductById(productId)
@@ -24,7 +25,10 @@ class InventoryService {
         inventory_stock: stock
       },
       $set: {
-        inventory_location: location
+        inventory_status: InventoryStatus.InStock,
+        inventory_location: location,
+        created_at: new Date(),
+        updated_at: new Date()
       }
     }
     const option = {

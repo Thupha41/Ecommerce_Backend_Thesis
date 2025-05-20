@@ -3,7 +3,7 @@ import { DiscountType, DiscountApplyTo } from '~/constants/enums'
 
 interface IDiscountProduct {
   product_id: ObjectId
-  sku_id: ObjectId
+  sku_id?: ObjectId
 }
 
 interface IDiscountType {

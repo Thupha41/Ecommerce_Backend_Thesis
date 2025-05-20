@@ -76,9 +76,9 @@ class ShopService {
     return deletedShop
   }
 
-  async getShopByIdOrSlug(shop_id: string, shop_slug: string) {
+  async getShopByIdOrSlug(shop_id: string) {
     const foundShop = await databaseService.shops.findOne({
-      $or: [{ _id: new ObjectId(shop_id) }, { shop_slug }]
+      _id: new ObjectId(shop_id)
     })
     return foundShop
   }
